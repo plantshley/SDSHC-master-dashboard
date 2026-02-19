@@ -1,0 +1,50 @@
+.donor-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.donor-dashboard-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.donor-dashboard-title {
+  font-family: var(--font-title);
+  font-size: 24px;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.donor-dashboard-filter-badge {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--accent-light);
+}
+
+.donor-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1200px) {
+  .donor-metrics-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .donor-metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .donor-dashboard-title {
+    font-size: 18px;
+  }
+}

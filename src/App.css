@@ -1,0 +1,195 @@
+/* ============================================
+   CSS Custom Properties — Light Mode (default)
+   ============================================ */
+:root {
+  /* Fonts */
+  --font-body: 'JetBrains Mono', monospace;
+  --font-title: 'Silkscreen', cursive;
+  --font-heading: 'MuseoModerno', sans-serif;
+
+  /* Light mode colors */
+  --bg-primary: #f0efe9;
+  --bg-secondary: #e8e7e1;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fafaf8;
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a5a;
+  --text-muted: #8a8a9a;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 20px rgba(var(--accent-rgb), 0.1);
+
+  /* Dashboard accent (overridden per theme) */
+  --accent: #4CAF50;
+  --accent-rgb: 76, 175, 80;
+  --accent-light: #C8E6C9;
+  --accent-dark: #2E7D32;
+  --accent-bg: #E8F5E9;
+
+  /* Card */
+  --card-radius: 16px;
+  --card-border: 1px solid var(--border-color);
+  --card-bg: var(--bg-card);
+
+  /* Glass effect (subtle in light mode) */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-blur: blur(12px);
+}
+
+/* ============================================
+   Dark Mode
+   ============================================ */
+[data-mode="dark"] {
+  --bg-primary: #0d0d12;
+  --bg-secondary: #14141e;
+  --bg-card: #1a1a2e;
+  --bg-card-hover: #222240;
+  --text-primary: #e0e0e8;
+  --text-secondary: #a0a0b0;
+  --text-muted: #6a6a7a;
+  --border-color: rgba(255, 255, 255, 0.06);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 25px rgba(var(--accent-rgb), 0.15);
+
+  --glass-bg: rgba(26, 26, 46, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================
+   Dashboard Theme Accents
+   ============================================ */
+[data-theme="donor"] {
+  --accent: #4CAF50;
+  --accent-rgb: 76, 175, 80;
+  --accent-light: #C8E6C9;
+  --accent-dark: #2E7D32;
+  --accent-bg: #E8F5E9;
+}
+
+[data-theme="vendor"] {
+  --accent: #E91E63;
+  --accent-rgb: 233, 30, 99;
+  --accent-light: #F8BBD0;
+  --accent-dark: #AD1457;
+  --accent-bg: #FCE4EC;
+}
+
+[data-theme="costshare"] {
+  --accent: #1976D2;
+  --accent-rgb: 25, 118, 210;
+  --accent-light: #BBDEFB;
+  --accent-dark: #0D47A1;
+  --accent-bg: #E3F2FD;
+}
+
+[data-theme="master"] {
+  --accent: #FF9800;
+  --accent-rgb: 255, 152, 0;
+  --accent-light: #FFE0B2;
+  --accent-dark: #E65100;
+  --accent-bg: #FFF3E0;
+}
+
+/* Dark mode accent backgrounds need to be darker */
+[data-mode="dark"][data-theme="donor"] { --accent-bg: #1b3a1c; }
+[data-mode="dark"][data-theme="vendor"] { --accent-bg: #3a1525; }
+[data-mode="dark"][data-theme="costshare"] { --accent-bg: #0d2744; }
+[data-mode="dark"][data-theme="master"] { --accent-bg: #3a2500; }
+
+/* ============================================
+   App Layout
+   ============================================ */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 24px;
+}
+
+.app-header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.app-logo {
+  font-family: var(--font-title);
+  font-size: 14px;
+  color: var(--accent);
+  white-space: nowrap;
+  letter-spacing: 1px;
+}
+
+.app-main {
+  flex: 1;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Loading state */
+.app-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  font-family: var(--font-heading);
+  color: var(--text-secondary);
+}
+
+.app-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error state */
+.app-error {
+  text-align: center;
+  padding: 48px 24px;
+  color: #E91E63;
+  font-family: var(--font-heading);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 10px 16px;
+  }
+  .app-header-inner {
+    flex-wrap: wrap;
+  }
+  .app-main {
+    padding: 16px;
+  }
+}

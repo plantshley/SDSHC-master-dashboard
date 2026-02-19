@@ -1,0 +1,53 @@
+.insights-card {
+  height: 100%;
+}
+
+.insights-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+}
+
+.insight-icon {
+  flex-shrink: 0;
+  font-size: 14px;
+  margin-top: 1px;
+}
+
+.insight-highlight .insight-icon {
+  color: #FFB347;
+}
+
+.insight-positive .insight-icon {
+  color: #4CAF50;
+}
+
+.insight-negative .insight-icon {
+  color: #E91E63;
+}
+
+.insight-opportunity .insight-icon {
+  color: #6A5ACD;
+}
+
+.insight-info .insight-icon {
+  color: #87CEEB;
+}
+
+.insight-text {
+  flex: 1;
+}

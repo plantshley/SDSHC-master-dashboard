@@ -1,0 +1,52 @@
+.nav-tab-btn {
+  position: relative;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.nav-tab-btn-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: #E3F2FD;
+  color: #1976D2;
+  overflow: hidden;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-tab-btn:hover .nav-tab-btn-inner {
+  background: #BBDEFB;
+}
+
+.nav-tab-btn.active .nav-tab-btn-inner {
+  background: #90CAF9;
+  color: white;
+}
+
+.nav-tab-btn-shine {
+  position: absolute;
+  left: -4rem;
+  top: -50%;
+  height: 200%;
+  width: 3rem;
+  background: rgba(255, 255, 255, 0.15);
+  transform: rotate(30deg);
+  transition: left 0.7s;
+}
+
+.nav-tab-btn:hover .nav-tab-btn-shine {
+  left: calc(100% + 1rem);
+}
+
+.nav-tab-btn.active .nav-tab-btn-shine {
+  background: rgba(255, 255, 255, 0.3);
+}

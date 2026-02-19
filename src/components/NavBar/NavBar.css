@@ -1,0 +1,21 @@
+.nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .nav-bar {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .nav-tabs {
+    gap: 6px;
+  }
+}
