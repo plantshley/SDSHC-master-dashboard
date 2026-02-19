@@ -51,6 +51,8 @@ export function computeDonorMetrics(rows) {
 
 export function computeGivingByYear(rows) {
   const yearMap = {}
+  const allTypes = new Set()
+
   rows.forEach((r) => {
     if (!r.giftYear) return
     const y = r.giftYear
@@ -59,13 +61,20 @@ export function computeGivingByYear(rows) {
     }
     yearMap[y].totalGiving += r.giftAmount
     yearMap[y].transactionCount += 1
+    if (r.giftType) {
+      allTypes.add(r.giftType)
+      yearMap[y][r.giftType] = (yearMap[y][r.giftType] || 0) + r.giftAmount
+    }
     if (r.giftType && r.giftType.toLowerCase().includes('membership')) {
       yearMap[y].membershipGiving += r.giftAmount
       yearMap[y].membershipCount += 1
     }
   })
 
-  return Object.values(yearMap).sort((a, b) => a.year - b.year)
+  const data = Object.values(yearMap).sort((a, b) => a.year - b.year)
+  const giftTypes = Array.from(allTypes).sort()
+
+  return { data, giftTypes }
 }
 
 export function computeMembershipStatus(rows) {
@@ -157,12 +166,20 @@ export function computeTopDonors(rows, limit = 25) {
         totalGiven: 0,
         transactionCount: 0,
         lastGiftYear: 0,
+        giftTypeBreakdown: {},
       }
     }
     donorMap[r.personId].totalGiven += r.giftAmount
     donorMap[r.personId].transactionCount += 1
     if (r.giftYear > donorMap[r.personId].lastGiftYear) {
       donorMap[r.personId].lastGiftYear = r.giftYear
+    }
+    if (r.giftType) {
+      if (!donorMap[r.personId].giftTypeBreakdown[r.giftType]) {
+        donorMap[r.personId].giftTypeBreakdown[r.giftType] = { amount: 0, count: 0 }
+      }
+      donorMap[r.personId].giftTypeBreakdown[r.giftType].amount += r.giftAmount
+      donorMap[r.personId].giftTypeBreakdown[r.giftType].count += 1
     }
   })
 
@@ -171,29 +188,17 @@ export function computeTopDonors(rows, limit = 25) {
     .slice(0, limit)
 }
 
-export function computeInsights(metrics, givingByYear, membershipStatus, rows) {
+export function computeInsights(metrics, givingByYearData, membershipStatus, rows) {
   const insights = []
 
   if (metrics) {
     insights.push({
       type: 'highlight',
       text: `Peak giving year was ${metrics.peakGivingYear} with ${formatInsightCurrency(
-        givingByYear.find((y) => y.year === metrics.peakGivingYear)?.totalGiving || 0
+        givingByYearData.find((y) => y.year === metrics.peakGivingYear)?.totalGiving || 0
       )} in total contributions.`,
     })
 
-    if (metrics.yoyGrowth !== null) {
-      const direction = metrics.yoyGrowth >= 0 ? 'increase' : 'decrease'
-      insights.push({
-        type: metrics.yoyGrowth >= 0 ? 'positive' : 'negative',
-        text: `${Math.abs(metrics.yoyGrowth).toFixed(1)}% year-over-year ${direction} (${metrics.yoyYears}).`,
-      })
-    }
-
-    insights.push({
-      type: 'info',
-      text: `${metrics.totalDonors.toLocaleString()} unique donors across ${metrics.totalTransactions.toLocaleString()} transactions spanning ${metrics.dataYearRange}.`,
-    })
   }
 
   // Former donor re-engagement
@@ -221,16 +226,20 @@ export function computeInsights(metrics, givingByYear, membershipStatus, rows) {
   if (membershipPctTransactions > 40 && membershipPctDollars < 10) {
     insights.push({
       type: 'info',
-      text: `Membership accounts for ${membershipPctTransactions.toFixed(0)}% of transactions but only ${membershipPctDollars.toFixed(0)}% of total giving dollars.`,
+      text: `Membership accounts for ${membershipPctTransactions.toFixed(0)}% of transactions, but only ${membershipPctDollars.toFixed(0)}% of total giving dollars.`,
     })
   }
 
-  // Top donor
-  const topDonors = computeTopDonors(rows, 1)
-  if (topDonors.length > 0) {
+  // Top donor (excluding non-individual giving types)
+  const excludedTypes = ['personnel', 'operational grant', 'commercial']
+  const individualGivingRows = rows.filter(
+    (r) => r.giftType && !excludedTypes.some((t) => r.giftType.toLowerCase().includes(t))
+  )
+  const topIndividualDonors = computeTopDonors(individualGivingRows, 1)
+  if (topIndividualDonors.length > 0) {
     insights.push({
       type: 'highlight',
-      text: `Top contributor: ${topDonors[0].fullName} with ${formatInsightCurrency(topDonors[0].totalGiven)} in total giving.`,
+      text: `Top contributor: ${topIndividualDonors[0].fullName} with ${formatInsightCurrency(topIndividualDonors[0].totalGiven)} in personal giving.`,
     })
   }
 

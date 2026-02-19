@@ -2,14 +2,54 @@ import {
   ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer
 } from 'recharts'
-import { tooltipStyle, currencyFormatter, numberFormatter } from './chartConfig'
+import { legendStyle, currencyFormatter, numberFormatter } from './chartConfig'
+
+function DualAxisTooltip({ active, payload, label }) {
+  if (!active || !payload || payload.length === 0) return null
+
+  return (
+    <div style={{
+      background: 'var(--bg-card)',
+      color: 'var(--text-primary)',
+      borderRadius: '10px',
+      padding: '10px 14px',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+      border: '1px solid var(--border-color)',
+      fontFamily: "'JetBrains Mono', monospace",
+      fontSize: '12px',
+    }}>
+      <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-secondary)' }}>{label}</div>
+      {payload.map((entry, i) => {
+        const displayName = entry.dataKey === 'membershipCount' ? 'Member Count' : 'Total Giving'
+        const displayValue = entry.dataKey === 'membershipCount'
+          ? numberFormatter(entry.value)
+          : currencyFormatter(entry.value)
+        return (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+            <span style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: entry.color,
+              display: 'inline-block',
+              flexShrink: 0,
+            }} />
+            <span>
+              <strong>{displayName}</strong>: {displayValue}
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 export default function MembershipGivingDualAxis({ data }) {
   if (!data || data.length === 0) return <div className="chart-empty">No data</div>
 
   return (
-    <ResponsiveContainer width="100%" height={320}>
-      <ComposedChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+    <ResponsiveContainer width="100%" height={360}>
+      <ComposedChart data={data} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
         <XAxis
           dataKey="year"
@@ -31,17 +71,12 @@ export default function MembershipGivingDualAxis({ data }) {
           tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
           width={70}
-          label={{ value: 'Giving ($)', angle: 90, position: 'insideRight', fontSize: 10, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
+          label={{ value: 'Giving ($)', angle: 90, position: 'insideRight', dx: 15, fontSize: 10, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
         />
-        <Tooltip
-          {...tooltipStyle}
-          formatter={(value, name) => {
-            if (name === 'membershipCount') return [numberFormatter(value), 'Member Count']
-            return [currencyFormatter(value), 'Total Giving']
-          }}
-        />
+        <Tooltip content={<DualAxisTooltip />} cursor={{ fill: 'var(--accent-bg)' }} />
         <Legend
-          wrapperStyle={{ fontSize: '11px', fontFamily: 'MuseoModerno' }}
+          {...legendStyle}
+          wrapperStyle={{ ...legendStyle.wrapperStyle, paddingTop: 12 }}
           formatter={(value) =>
             value === 'membershipCount' ? 'Member Count' : 'Total Giving'
           }
@@ -49,7 +84,8 @@ export default function MembershipGivingDualAxis({ data }) {
         <Bar
           yAxisId="left"
           dataKey="membershipCount"
-          fill="#6A5ACD"
+          name="membershipCount"
+          fill="#FC38A4"
           fillOpacity={0.7}
           radius={[4, 4, 0, 0]}
         />
@@ -57,9 +93,10 @@ export default function MembershipGivingDualAxis({ data }) {
           yAxisId="right"
           type="monotone"
           dataKey="totalGiving"
-          stroke="#FF6347"
+          name="totalGiving"
+          stroke="var(--accent)"
           strokeWidth={2.5}
-          dot={{ r: 4, fill: '#FF6347' }}
+          dot={{ r: 4, fill: 'var(--accent)' }}
           activeDot={{ r: 6 }}
         />
       </ComposedChart>

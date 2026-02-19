@@ -1,14 +1,12 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, Fragment } from 'react'
 import { formatCurrencyFull } from '../../utils/formatters'
 import './DataTable.css'
-
-const PAGE_SIZE = 25
 
 export default function DataTable({ data, columns }) {
   const [sortKey, setSortKey] = useState(null)
   const [sortDir, setSortDir] = useState('desc')
   const [search, setSearch] = useState('')
-  const [page, setPage] = useState(0)
+  const [expandedRow, setExpandedRow] = useState(null)
 
   const filtered = useMemo(() => {
     if (!search.trim()) return data
@@ -36,9 +34,6 @@ export default function DataTable({ data, columns }) {
     })
   }, [filtered, sortKey, sortDir])
 
-  const totalPages = Math.ceil(sorted.length / PAGE_SIZE)
-  const pageData = sorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
-
   const handleSort = (key) => {
     if (sortKey === key) {
       setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
@@ -46,12 +41,10 @@ export default function DataTable({ data, columns }) {
       setSortKey(key)
       setSortDir('desc')
     }
-    setPage(0)
   }
 
-  const handleSearch = (e) => {
-    setSearch(e.target.value)
-    setPage(0)
+  const toggleExpand = (personId) => {
+    setExpandedRow((prev) => (prev === personId ? null : personId))
   }
 
   return (
@@ -62,7 +55,7 @@ export default function DataTable({ data, columns }) {
           className="data-table-search"
           placeholder="Search donors..."
           value={search}
-          onChange={handleSearch}
+          onChange={(e) => setSearch(e.target.value)}
         />
         <span className="data-table-count">
           {sorted.length} result{sorted.length !== 1 ? 's' : ''}
@@ -89,31 +82,50 @@ export default function DataTable({ data, columns }) {
             </tr>
           </thead>
           <tbody>
-            {pageData.map((row, i) => (
-              <tr key={row.personId || i}>
-                <td className="data-table-rank">{page * PAGE_SIZE + i + 1}</td>
-                {columns.map((col) => (
-                  <td key={col.key} className={col.align === 'right' ? 'text-right' : ''}>
-                    {col.format === 'currency'
-                      ? formatCurrencyFull(row[col.key])
-                      : row[col.key] ?? '—'}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {sorted.map((row, i) => {
+              const isExpanded = expandedRow === row.personId
+              const hasBreakdown = row.giftTypeBreakdown && Object.keys(row.giftTypeBreakdown).length > 0
+              return (
+                <Fragment key={row.personId || i}>
+                  <tr
+                    className={`${hasBreakdown ? 'expandable-row' : ''} ${isExpanded ? 'expanded' : ''}`}
+                    onClick={() => hasBreakdown && toggleExpand(row.personId)}
+                  >
+                    <td className="data-table-rank">{i + 1}</td>
+                    {columns.map((col) => (
+                      <td key={col.key} className={col.align === 'right' ? 'text-right' : ''}>
+                        {col.key === 'fullName' && hasBreakdown && (
+                          <span className="expand-icon">{isExpanded ? '▾' : '▸'}</span>
+                        )}
+                        {col.format === 'currency'
+                          ? formatCurrencyFull(row[col.key])
+                          : row[col.key] ?? '—'}
+                      </td>
+                    ))}
+                  </tr>
+                  {isExpanded && hasBreakdown && (
+                    <tr className="detail-row">
+                      <td colSpan={columns.length + 1}>
+                        <div className="detail-breakdown">
+                          {Object.entries(row.giftTypeBreakdown)
+                            .sort(([, a], [, b]) => b.amount - a.amount)
+                            .map(([type, info]) => (
+                              <div key={type} className="detail-item">
+                                <span className="detail-type">{type}</span>
+                                <span className="detail-amount">{formatCurrencyFull(info.amount)}</span>
+                                <span className="detail-count">({info.count} txn{info.count !== 1 ? 's' : ''})</span>
+                              </div>
+                            ))}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              )
+            })}
           </tbody>
         </table>
       </div>
-
-      {totalPages > 1 && (
-        <div className="data-table-pagination">
-          <button disabled={page === 0} onClick={() => setPage(page - 1)}>← Prev</button>
-          <span>
-            Page {page + 1} of {totalPages}
-          </span>
-          <button disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>Next →</button>
-        </div>
-      )}
     </div>
   )
 }

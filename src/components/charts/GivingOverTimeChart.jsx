@@ -2,9 +2,9 @@ import {
   ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer
 } from 'recharts'
-import { tooltipStyle, currencyFormatter } from './chartConfig'
+import { CHART_COLORS, legendStyle, currencyFormatter, CustomTooltipContent } from './chartConfig'
 
-export default function GivingOverTimeChart({ data }) {
+export default function GivingOverTimeChart({ data, giftTypes, selectedType }) {
   if (!data || data.length === 0) return <div className="chart-empty">No data</div>
 
   return (
@@ -23,35 +23,28 @@ export default function GivingOverTimeChart({ data }) {
           stroke="var(--text-muted)"
           width={70}
         />
-        <Tooltip
-          {...tooltipStyle}
-          formatter={(value, name) => [
-            currencyFormatter(value),
-            name === 'totalGiving' ? 'Total Giving' : 'Membership Giving',
-          ]}
-        />
-        <Legend
-          wrapperStyle={{ fontSize: '11px', fontFamily: 'MuseoModerno' }}
-          formatter={(value) =>
-            value === 'totalGiving' ? 'Total Giving' : 'Membership Giving'
-          }
-        />
+        <Tooltip content={<CustomTooltipContent valueFormatter={currencyFormatter} />} cursor={{ fill: 'var(--accent-bg)' }} />
+        <Legend {...legendStyle} />
         <Bar
           yAxisId="left"
           dataKey="totalGiving"
+          name="Total Giving"
           fill="var(--accent)"
           fillOpacity={0.7}
           radius={[4, 4, 0, 0]}
         />
-        <Line
-          yAxisId="left"
-          type="monotone"
-          dataKey="membershipGiving"
-          stroke="#FF69B4"
-          strokeWidth={2.5}
-          dot={{ r: 4, fill: '#FF69B4' }}
-          activeDot={{ r: 6 }}
-        />
+        {selectedType && selectedType !== 'None' && giftTypes && (
+          <Line
+            yAxisId="left"
+            type="monotone"
+            dataKey={selectedType}
+            name={selectedType}
+            stroke={CHART_COLORS[giftTypes.indexOf(selectedType) % CHART_COLORS.length]}
+            strokeWidth={2.5}
+            dot={{ r: 4, fill: CHART_COLORS[giftTypes.indexOf(selectedType) % CHART_COLORS.length] }}
+            activeDot={{ r: 6 }}
+          />
+        )}
       </ComposedChart>
     </ResponsiveContainer>
   )

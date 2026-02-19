@@ -2,7 +2,11 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer
 } from 'recharts'
-import { CHART_COLORS, tooltipStyle, numberFormatter } from './chartConfig'
+import { CHART_COLORS, legendStyle, CustomTooltipContent, numberFormatter } from './chartConfig'
+
+function txFormatter(value) {
+  return `${numberFormatter(value)} transactions`
+}
 
 export default function TransactionVolumeChart({ data, giftTypes }) {
   if (!data || data.length === 0) return <div className="chart-empty">No data</div>
@@ -22,13 +26,8 @@ export default function TransactionVolumeChart({ data, giftTypes }) {
           stroke="var(--text-muted)"
           width={50}
         />
-        <Tooltip
-          {...tooltipStyle}
-          formatter={(value, name) => [`${numberFormatter(value)} transactions`, name]}
-        />
-        <Legend
-          wrapperStyle={{ fontSize: '10px', fontFamily: 'MuseoModerno' }}
-        />
+        <Tooltip content={<CustomTooltipContent valueFormatter={txFormatter} />} />
+        <Legend {...legendStyle} />
         {giftTypes.map((type, i) => (
           <Line
             key={type}

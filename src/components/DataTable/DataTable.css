@@ -40,6 +40,8 @@
   overflow-x: auto;
   border-radius: 10px;
   border: 1px solid var(--border-color);
+  max-height: 700px;
+  overflow-y: auto;
 }
 
 .data-table {
@@ -49,6 +51,9 @@
 
 .data-table thead {
   background: var(--bg-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .data-table th {
@@ -87,6 +92,55 @@
 
 .data-table tbody tr:hover {
   background: var(--accent-bg);
+}
+
+.data-table tbody tr.expandable-row {
+  cursor: pointer;
+}
+
+.data-table tbody tr.expanded {
+  background: var(--accent-bg);
+}
+
+.expand-icon {
+  margin-right: 6px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.detail-row td {
+  padding: 8px 14px 8px 54px;
+  border-top: none;
+  vertical-align: middle;
+}
+
+.detail-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.detail-type {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.detail-amount {
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-count {
+  color: var(--text-muted);
+  font-size: 10px;
 }
 
 .data-table-rank {

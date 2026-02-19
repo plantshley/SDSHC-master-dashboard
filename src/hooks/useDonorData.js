@@ -25,25 +25,29 @@ export default function useDonorData(filters = {}) {
     membershipStatuses: getUniqueMembershipStatuses(rawRows),
   }), [rawRows])
 
-  // Apply filters
-  const filteredRows = useMemo(() => {
+  // Year-only filtered rows (for membership count — ignores gift type and status filters)
+  const yearFilteredRows = useMemo(() => {
     let rows = rawRows
-
     if (filters.yearStart) {
       rows = rows.filter((r) => r.giftYear >= filters.yearStart)
     }
     if (filters.yearEnd) {
       rows = rows.filter((r) => r.giftYear <= filters.yearEnd)
     }
+    return rows
+  }, [rawRows, filters.yearStart, filters.yearEnd])
+
+  // Apply all filters
+  const filteredRows = useMemo(() => {
+    let rows = yearFilteredRows
     if (filters.giftTypes && filters.giftTypes.length > 0) {
       rows = rows.filter((r) => filters.giftTypes.includes(r.giftType))
     }
     if (filters.membershipStatuses && filters.membershipStatuses.length > 0) {
       rows = rows.filter((r) => filters.membershipStatuses.includes(r.membershipStatus))
     }
-
     return rows
-  }, [rawRows, filters.yearStart, filters.yearEnd, filters.giftTypes, filters.membershipStatuses])
+  }, [yearFilteredRows, filters.giftTypes, filters.membershipStatuses])
 
   // Compute all aggregations
   const metrics = useMemo(() => computeDonorMetrics(filteredRows), [filteredRows])
@@ -51,11 +55,33 @@ export default function useDonorData(filters = {}) {
   const membershipStatus = useMemo(() => computeMembershipStatus(filteredRows), [filteredRows])
   const giftTypeByYear = useMemo(() => computeGiftTypeByYear(filteredRows), [filteredRows])
   const transactionVolume = useMemo(() => computeTransactionVolume(filteredRows), [filteredRows])
-  const topDonors = useMemo(() => computeTopDonors(filteredRows), [filteredRows])
+  const topDonors = useMemo(() => computeTopDonors(filteredRows, 500), [filteredRows])
   const insights = useMemo(
-    () => metrics ? computeInsights(metrics, givingByYear, membershipStatus, filteredRows) : [],
+    () => metrics ? computeInsights(metrics, givingByYear.data, membershipStatus, filteredRows) : [],
     [metrics, givingByYear, membershipStatus, filteredRows]
   )
+
+  // Membership count from year-filtered (unfiltered by type/status) + giving from fully filtered
+  const membershipByYear = useMemo(() => {
+    const unfilteredByYear = computeGivingByYear(yearFilteredRows)
+    const filteredByYear = givingByYear
+
+    // Build merged data: membership counts from unfiltered, giving from filtered
+    const yearSet = new Set([
+      ...unfilteredByYear.data.map((d) => d.year),
+      ...filteredByYear.data.map((d) => d.year),
+    ])
+    const filteredMap = {}
+    filteredByYear.data.forEach((d) => { filteredMap[d.year] = d })
+    const unfilteredMap = {}
+    unfilteredByYear.data.forEach((d) => { unfilteredMap[d.year] = d })
+
+    return Array.from(yearSet).sort().map((year) => ({
+      year,
+      membershipCount: unfilteredMap[year]?.membershipCount || 0,
+      totalGiving: filteredMap[year]?.totalGiving || 0,
+    }))
+  }, [yearFilteredRows, givingByYear])
 
   return {
     isLoading,
@@ -70,5 +96,6 @@ export default function useDonorData(filters = {}) {
     filterOptions,
     filteredRowCount: filteredRows.length,
     totalRowCount: rawRows.length,
+    membershipByYear,
   }
 }

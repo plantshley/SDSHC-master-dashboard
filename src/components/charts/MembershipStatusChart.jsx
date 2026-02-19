@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { CHART_COLORS, tooltipStyle } from './chartConfig'
+import { CHART_COLORS, legendStyle } from './chartConfig'
 
 const RADIAN = Math.PI / 180
 
@@ -25,6 +25,39 @@ function renderCustomLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent
   )
 }
 
+function CustomPieTooltip({ active, payload }) {
+  if (!active || !payload || payload.length === 0) return null
+  const entry = payload[0]
+  const data = entry.payload
+
+  return (
+    <div style={{
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border-color)',
+      borderRadius: '10px',
+      padding: '10px 14px',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+      color: 'var(--text-primary)',
+      fontFamily: "'JetBrains Mono', monospace",
+      fontSize: '12px',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{
+          width: 8,
+          height: 8,
+          borderRadius: '50%',
+          background: entry.color || entry.payload.fill,
+          display: 'inline-block',
+          flexShrink: 0,
+        }} />
+        <span>
+          <strong>{data.status}</strong>: {data.count} donors ({data.percentage.toFixed(1)}%)
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function MembershipStatusChart({ data }) {
   if (!data || data.length === 0) return <div className="chart-empty">No data</div>
 
@@ -42,6 +75,7 @@ export default function MembershipStatusChart({ data }) {
           label={renderCustomLabel}
           labelLine={false}
           paddingAngle={2}
+          stroke="none"
         >
           {data.map((entry, index) => (
             <Cell
@@ -50,16 +84,8 @@ export default function MembershipStatusChart({ data }) {
             />
           ))}
         </Pie>
-        <Tooltip
-          {...tooltipStyle}
-          formatter={(value, name) => [
-            `${value} donors (${data.find((d) => d.status === name)?.percentage.toFixed(1)}%)`,
-            name,
-          ]}
-        />
-        <Legend
-          wrapperStyle={{ fontSize: '11px', fontFamily: 'MuseoModerno' }}
-        />
+        <Tooltip content={<CustomPieTooltip />} />
+        <Legend {...legendStyle} />
       </PieChart>
     </ResponsiveContainer>
   )

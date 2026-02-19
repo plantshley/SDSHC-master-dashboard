@@ -31,6 +31,10 @@
 
 .bento-card-header {
   padding: 16px 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .bento-card-title {
@@ -39,6 +43,14 @@
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.bento-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .bento-card-content {

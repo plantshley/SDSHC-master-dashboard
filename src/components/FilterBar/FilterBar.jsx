@@ -2,6 +2,10 @@ import { useState, useRef, useEffect } from 'react'
 import './FilterBar.css'
 
 export default function FilterBar({ filters, onFilterChange, options }) {
+  const hasActiveFilters = filters.yearStart || filters.yearEnd
+    || (filters.giftTypes && filters.giftTypes.length > 0)
+    || (filters.membershipStatuses && filters.membershipStatuses.length > 0)
+
   return (
     <div className="filter-bar">
       <div className="filter-bar-label">Filters</div>
@@ -45,7 +49,7 @@ export default function FilterBar({ filters, onFilterChange, options }) {
         onChange={(val) => onFilterChange({ ...filters, membershipStatuses: val })}
       />
 
-      {(filters.yearStart || filters.yearEnd || (filters.giftTypes && filters.giftTypes.length) || (filters.membershipStatuses && filters.membershipStatuses.length)) && (
+      {hasActiveFilters && (
         <button
           className="filter-clear-btn"
           onClick={() => onFilterChange({ yearStart: null, yearEnd: null, giftTypes: [], membershipStatuses: [] })}

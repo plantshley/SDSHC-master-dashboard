@@ -5,27 +5,29 @@
 .insights-list {
   list-style: none;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  gap: 10px;
 }
 
 .insight-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   font-size: 12.5px;
   line-height: 1.5;
   color: var(--text-primary);
-  padding: 10px 12px;
+  padding: 10px 14px;
   border-radius: 10px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .insight-icon {
   flex-shrink: 0;
   font-size: 14px;
-  margin-top: 1px;
+  margin-top: 0;
 }
 
 .insight-highlight .insight-icon {
@@ -50,4 +52,13 @@
 
 .insight-text {
   flex: 1;
+}
+
+@media (max-width: 768px) {
+  .insights-list {
+    flex-direction: column;
+  }
+  .insight-item {
+    flex: 1 1 auto;
+  }
 }
