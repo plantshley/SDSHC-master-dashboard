@@ -1,58 +1,70 @@
 import { useState, useRef, useEffect } from 'react'
 import './FilterBar.css'
 
-export default function FilterBar({ filters, onFilterChange, options }) {
-  const hasActiveFilters = filters.yearStart || filters.yearEnd
-    || (filters.giftTypes && filters.giftTypes.length > 0)
-    || (filters.membershipStatuses && filters.membershipStatuses.length > 0)
+export default function FilterBar({ filters, onFilterChange, fields, clearFilters }) {
+  const hasActiveFilters = fields.some((field) => {
+    if (field.type === 'yearRange') {
+      const [startKey, endKey] = field.key
+      return filters[startKey] || filters[endKey]
+    }
+    const val = filters[field.key]
+    return val && val.length > 0
+  })
 
   return (
     <div className="filter-bar">
       <div className="filter-bar-label">Filters</div>
 
-      <div className="filter-group">
-        <label className="filter-label">Year Range</label>
-        <div className="filter-year-range">
-          <select
-            value={filters.yearStart || ''}
-            onChange={(e) => onFilterChange({ ...filters, yearStart: e.target.value ? Number(e.target.value) : null })}
-          >
-            <option value="">From</option>
-            {options.years.map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-          <span className="filter-range-sep">–</span>
-          <select
-            value={filters.yearEnd || ''}
-            onChange={(e) => onFilterChange({ ...filters, yearEnd: e.target.value ? Number(e.target.value) : null })}
-          >
-            <option value="">To</option>
-            {options.years.map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+      {fields.map((field) => {
+        if (field.type === 'yearRange') {
+          const [startKey, endKey] = field.key
+          return (
+            <div key={field.label} className="filter-group">
+              <label className="filter-label">{field.label}</label>
+              <div className="filter-year-range">
+                <select
+                  value={filters[startKey] || ''}
+                  onChange={(e) => onFilterChange({ ...filters, [startKey]: e.target.value ? Number(e.target.value) : null })}
+                >
+                  <option value="">From</option>
+                  {field.options.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+                <span className="filter-range-sep">–</span>
+                <select
+                  value={filters[endKey] || ''}
+                  onChange={(e) => onFilterChange({ ...filters, [endKey]: e.target.value ? Number(e.target.value) : null })}
+                >
+                  <option value="">To</option>
+                  {field.options.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )
+        }
 
-      <MultiSelect
-        label="Gift Type"
-        options={options.giftTypes}
-        selected={filters.giftTypes || []}
-        onChange={(val) => onFilterChange({ ...filters, giftTypes: val })}
-      />
+        if (field.type === 'multiSelect') {
+          return (
+            <MultiSelect
+              key={field.key}
+              label={field.label}
+              options={field.options}
+              selected={filters[field.key] || []}
+              onChange={(val) => onFilterChange({ ...filters, [field.key]: val })}
+            />
+          )
+        }
 
-      <MultiSelect
-        label="Status"
-        options={options.membershipStatuses}
-        selected={filters.membershipStatuses || []}
-        onChange={(val) => onFilterChange({ ...filters, membershipStatuses: val })}
-      />
+        return null
+      })}
 
       {hasActiveFilters && (
         <button
           className="filter-clear-btn"
-          onClick={() => onFilterChange({ yearStart: null, yearEnd: null, giftTypes: [], membershipStatuses: [] })}
+          onClick={clearFilters}
         >
           Clear All
         </button>

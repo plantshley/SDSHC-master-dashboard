@@ -21,7 +21,9 @@ function CellContent({ col, row }) {
   }
 
   if (col.render === 'historyLink') {
-    return value ? (
+    const shouldShow = col.showIf ? row[col.showIf] : true
+    if (!shouldShow || !value) return '—'
+    return (
       <a
         href={value}
         target="_blank"
@@ -30,6 +32,20 @@ function CellContent({ col, row }) {
         onClick={(e) => e.stopPropagation()}
       >
         View
+      </a>
+    )
+  }
+
+  if (col.render === 'externalLink') {
+    return value ? (
+      <a
+        href={value}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="history-link"
+        onClick={(e) => e.stopPropagation()}
+      >
+        View/Edit
       </a>
     ) : '—'
   }
@@ -41,7 +57,7 @@ function CellContent({ col, row }) {
   return value ?? '—'
 }
 
-export default function DataTable({ data, columns }) {
+export default function DataTable({ data, columns, onRowClick, searchPlaceholder }) {
   const [sortKey, setSortKey] = useState(null)
   const [sortDir, setSortDir] = useState('desc')
   const [search, setSearch] = useState('')
@@ -52,7 +68,7 @@ export default function DataTable({ data, columns }) {
     const q = search.toLowerCase()
     return data.filter((row) =>
       columns.some((col) => {
-        if (col.render === 'historyLink') return false
+        if (col.render === 'historyLink' || col.render === 'externalLink') return false
         const val = row[col.key]
         return val != null && String(val).toLowerCase().includes(q)
       })
@@ -87,13 +103,22 @@ export default function DataTable({ data, columns }) {
     setExpandedRow((prev) => (prev === personId ? null : personId))
   }
 
+  const handleRowClick = (row) => {
+    if (onRowClick) {
+      onRowClick(row)
+    } else {
+      const hasBreakdown = row.giftTypeBreakdown && Object.keys(row.giftTypeBreakdown).length > 0
+      if (hasBreakdown) toggleExpand(row.personId)
+    }
+  }
+
   return (
     <div className="data-table-wrapper">
       <div className="data-table-controls">
         <input
           type="text"
           className="data-table-search"
-          placeholder="Search donors..."
+          placeholder={searchPlaceholder || 'Search...'}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -124,16 +149,17 @@ export default function DataTable({ data, columns }) {
           <tbody>
             {sorted.map((row, i) => {
               const isExpanded = expandedRow === row.personId
-              const hasBreakdown = row.giftTypeBreakdown && Object.keys(row.giftTypeBreakdown).length > 0
+              const hasBreakdown = !onRowClick && row.giftTypeBreakdown && Object.keys(row.giftTypeBreakdown).length > 0
+              const isClickable = onRowClick || hasBreakdown
               return (
                 <Fragment key={row.personId || i}>
                   <tr
-                    className={`${hasBreakdown ? 'expandable-row' : ''} ${isExpanded ? 'expanded' : ''}`}
-                    onClick={() => hasBreakdown && toggleExpand(row.personId)}
+                    className={`${isClickable ? 'expandable-row' : ''} ${isExpanded ? 'expanded' : ''}`}
+                    onClick={() => handleRowClick(row)}
                   >
                     <td className="data-table-rank">{i + 1}</td>
                     {columns.map((col) => (
-                      <td key={col.key} className={col.align === 'right' ? 'text-right' : ''}>
+                      <td key={col.key} className={`${col.align === 'right' ? 'text-right' : ''} ${col.className || ''}`}>
                         {col.key === 'fullName' && hasBreakdown && (
                           <span className="expand-icon">{isExpanded ? '▾' : '▸'}</span>
                         )}

@@ -144,6 +144,13 @@ export default function DonorDashboard() {
     membershipByYear,
   } = useDonorData(filters)
 
+  const donorFilterFields = [
+    { type: 'yearRange', key: ['yearStart', 'yearEnd'], label: 'Year Range', options: filterOptions.years },
+    { type: 'multiSelect', key: 'giftTypes', label: 'Gift Type', options: filterOptions.giftTypes },
+    { type: 'multiSelect', key: 'membershipStatuses', label: 'Status', options: filterOptions.membershipStatuses },
+  ]
+  const clearDonorFilters = () => setFilters({ yearStart: null, yearEnd: null, giftTypes: [], membershipStatuses: [] })
+
   if (isLoading) {
     return (
       <div className="app-loading">
@@ -170,12 +177,12 @@ export default function DonorDashboard() {
         <div className="donor-dashboard-header">
           <h1 className="donor-dashboard-title">Donor Dashboard</h1>
         </div>
-        <FilterBar filters={filters} onFilterChange={setFilters} options={filterOptions} />
+        <FilterBar filters={filters} onFilterChange={setFilters} fields={donorFilterFields} clearFilters={clearDonorFilters} />
         <div className="app-error">
           No data found for the applied filters.
           <button
             className="filter-reset-btn"
-            onClick={() => setFilters({ yearStart: null, yearEnd: null, giftTypes: [], membershipStatuses: [] })}
+            onClick={clearDonorFilters}
           >
             Reset Filters
           </button>
@@ -185,6 +192,15 @@ export default function DonorDashboard() {
   }
 
   const isFiltered = filteredRowCount < totalRowCount
+
+  const givingIsFiltered = filters.giftTypes.length > 0 || filters.membershipStatuses.length > 0
+  const membershipGivingLabel = givingIsFiltered ? 'Filtered' : 'Total'
+  const membershipGivingFilterNote = (() => {
+    const parts = []
+    if (filters.giftTypes.length > 0) parts.push(filters.giftTypes.join(', '))
+    if (filters.membershipStatuses.length > 0) parts.push(filters.membershipStatuses.join(', '))
+    return parts.join(' · ')
+  })()
 
   const donorTableTitle = (() => {
     const parts = []
@@ -217,7 +233,7 @@ export default function DonorDashboard() {
         )}
       </div>
 
-      <FilterBar filters={filters} onFilterChange={setFilters} options={filterOptions} />
+      <FilterBar filters={filters} onFilterChange={setFilters} fields={donorFilterFields} clearFilters={clearDonorFilters} />
 
       {/* Key Metrics */}
       <div className="donor-metrics-row">
@@ -283,12 +299,12 @@ export default function DonorDashboard() {
           />
         </BentoCard>
 
-        <BentoCard title="Membership Count & Total Giving by Year" colSpan={2}>
-          <MembershipGivingDualAxis data={membershipByYear} />
+        <BentoCard title={`Membership Count & ${membershipGivingLabel} Giving by Year`} colSpan={2}>
+          <MembershipGivingDualAxis data={membershipByYear} filterNote={membershipGivingFilterNote} />
         </BentoCard>
 
         <BentoCard title={donorTableTitle} colSpan={4}>
-          <DataTable data={allDonors} columns={DONOR_COLUMNS} />
+          <DataTable data={allDonors} columns={DONOR_COLUMNS} searchPlaceholder="Search donors..." />
         </BentoCard>
       </BentoGrid>
     </div>

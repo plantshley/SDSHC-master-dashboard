@@ -138,3 +138,120 @@ SDSHC-master-dashboard/
 5. Test responsive: resize browser to tablet/mobile widths — bento grid should collapse
 6. Push to `main` — GitHub Actions workflow should build and deploy to Pages
 7. Verify live site at `https://plantshley.github.io/SDSHC-master-dashboard/`
+
+---
+
+# Master Peoples/Entities Dashboard - Implementation Plan
+
+## Context
+The team needs a Master Dashboard to view and explore all 2,423 people/entities in the SDSHC database. Unlike the Donor Dashboard (which aggregates transaction-level rows), this dashboard operates on one-row-per-person data from the "Master Database" sheet. The focus is on understanding the composition of the database — who's in it, what their relationships are, where they're located, their financial engagement levels, and easy access to individual profiles with links back to SharePoint.
+
+## Data Source
+**Sheet:** "Master Database" (2,423 rows, 35 columns)
+**Key columns:**
+- Identity: `PersonID`, `FullName.text`, `First Name`, `Last Name`
+- Classification: `Relationship` (21+ types, comma-separated multi-values like "Donor, Vendor"), `MembershipStatus` (6 values: Current/Former/Never/Lifetime/Unknown/Deceased)
+- Financials: `LifetimeGiftAmount`, `LifetimeVendingTotal`, `LifetimeCostshareTotal`, `LastGiftAmount`, `LastGiftYear`, `LastGiftType`
+- Contact: `Email`, `Phone`, `Primary Address`, `Street`, `City`, `State`, `Zipcode`, `Contact Preference`, `Newsletter Status`
+- Dates: `Last Transaction Yea`, `LastMembershipYear`, `LastGiftDate`, `Modified`
+- URLs: `RecordURL`, `DonorURL`, `VendorURL`, `CostShareURL` (all 2,423 rows have all 4 URLs)
+- Other: `ThankYouSent`, `DonorHistory`/`VendorHistory`/`CostShareHistory` (text flags)
+
+## Files to Create/Modify
+
+### New Files
+```
+src/utils/masterAggregations.js     — Pure aggregation functions
+src/hooks/useMasterData.js          — Filter + memoize hook
+src/pages/MasterDashboard.css       — Dashboard-specific styles
+src/components/ProfileModal/ProfileModal.jsx  — Person profile modal
+src/components/ProfileModal/ProfileModal.css
+src/components/charts/StateDistributionChart.jsx
+src/components/charts/EngagementMatrixChart.jsx
+src/components/charts/FinancialByRoleChart.jsx
+```
+
+### Files to Modify
+```
+src/utils/excelParser.js            — Add parseMasterDatabase() function
+src/context/DataContext.jsx          — Include masterDatabase in parsed data
+src/pages/MasterDashboard.jsx       — Replace placeholder with full dashboard
+src/components/FilterBar/FilterBar.jsx — Make it generic (accept filter config)
+src/components/DataTable/DataTable.jsx — Add onRowClick callback prop for modal
+```
+
+## Implementation Steps
+
+### Step 1: Data Layer — Excel Parser
+Add `parseMasterDatabase(workbook)` to `src/utils/excelParser.js`:
+- Find sheet named "Master Database" (not "Master Database (expanded)")
+- Extract all 35 columns, normalize to camelCase keys
+- Notable mappings: `FullName.text` → `fullName`, `Last Transaction Yea` → `lastTransactionYear`
+- Parse dates: `LastGiftDate`, `Modified` (Excel serial numbers → Date objects)
+- Parse numbers: `LifetimeGiftAmount`, `LifetimeVendingTotal`, `LifetimeCostshareTotal`, `LastGiftAmount`
+- Keep all 4 URL columns: `recordUrl`, `donorUrl`, `vendorUrl`, `costShareUrl`
+- History flags: `DonorHistory`/`VendorHistory`/`CostShareHistory` → boolean `hasDonorHistory`/etc. (`=== 'View'`)
+- Update `fetchAndParseExcel()` return to include `masterDatabase` array
+
+### Step 2: Aggregation Functions — `src/utils/masterAggregations.js`
+Pure functions: `computeMasterMetrics`, `computeRelationshipBreakdown`, `computeMembershipBreakdown`, `computeStateDistribution`, `computeEngagementMatrix`, `computeFinancialSummaryByRole`, `computeMasterInsights`, `getFilterOptions`
+
+### Step 3: Data Hook — `src/hooks/useMasterData.js`
+Filters: `{ relationships[], membershipStatuses[], states[], newsletterStatuses[] }`
+
+### Step 4: FilterBar — Generic `fields` config array
+### Step 5: ProfileModal — Click row to view person profile with links
+### Step 6: DataTable — `onRowClick`, `searchPlaceholder`, `showIf` column config
+### Step 7: MasterDashboard page with metrics, insights, charts, table
+### Step 8: Charts — MembershipStatusChart (donut), StateDistributionChart, EngagementMatrixChart, FinancialByRoleChart
+### Step 9: CSS — `.master-*` classes, purple theme via `data-theme="master"`
+
+## Verification
+1. `npm run dev` → `/#/master` renders with real data
+2. Filters update all metrics, charts, table, and insights
+3. Click row → ProfileModal with working SharePoint links
+4. DonorDashboard unchanged after FilterBar refactor
+5. Dark mode works on Master dashboard
+6. Responsive at tablet/mobile widths
+7. `npm run build` — clean build
+
+---
+
+# ProfileModal Redesign + Relationship Treemap
+
+## Context
+The ProfileModal needs a visual overhaul — font sizes are too small, spacing feels cramped, the membership status badge under the name is redundant, and the overall look is bland. Additionally, the Relationship Breakdown donut chart is misleading because people can have multiple roles (e.g., "Donor, Vendor"), so pie slices don't add up to total people.
+
+## Changes
+
+### 1. Replace Relationship Breakdown Donut → Treemap
+**File:** `src/components/charts/RelationshipTreemap.jsx` (new)
+
+Use Recharts `<Treemap>` to show relationship role counts as nested rectangles. Each rectangle is sized by count and colored from CHART_COLORS. Includes custom content renderer showing role name + count inside each rectangle.
+
+**Data format stays the same** from `computeRelationshipBreakdown()`: `{ status, count, percentage }` — map to `{ name, size, fill }` for the Treemap.
+
+**File:** `src/pages/MasterDashboard.jsx`
+- Replace `<MembershipStatusChart data={relationshipBreakdown} />` with `<RelationshipTreemap data={relationshipBreakdown} />`
+
+### 2. ProfileModal Redesign
+**Files:** `src/components/ProfileModal/ProfileModal.jsx` + `ProfileModal.css`
+
+**Key changes:**
+- **Wider modal**: 680px max-width (up from 540px) for two-column layout
+- **Remove membership status badge** from under the name (redundant with Membership section)
+- **Bigger fonts**: name 24px, section titles 13px, info labels 12px, financial values 20px, tags 11px
+- **More spacing**: modal padding 32px, section margin 24px, avatar 64px
+- **Two-column body** (desktop): Left = Financial + Membership, Right = Contact with icon accents
+- **Section titles**: accent-colored left border instead of bottom border
+- **Contact icons**: Unicode characters styled in accent color
+- **Quick links**: below header, no section title needed
+- **Status badge**: moves to Membership section inline with "Status:" value
+- **Responsive**: single column below 700px
+
+## Verification
+1. Relationship Breakdown shows treemap instead of donut
+2. Modal opens with two-column layout, bigger fonts, icon accents
+3. Dark mode works
+4. Responsive collapse on mobile
+5. `npm run build` — clean build

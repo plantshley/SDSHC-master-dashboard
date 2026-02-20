@@ -15,7 +15,7 @@ export default function App() {
     <div className="app-layout">
       <header className="app-header">
         <div className="app-header-inner">
-          <Link to="/" className="app-logo">SDSHC DASHBOARD</Link>
+          <Link to="/" className="app-logo">SDSHC Data Hub</Link>
           <NavBar />
         </div>
       </header>

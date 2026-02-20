@@ -10,7 +10,9 @@
       "Bash(timeout 10 npx vite:*)",
       "Bash(npx vite:*)",
       "Bash(ls:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(node --input-type=module -e:*)",
+      "Bash(node:*)"
     ]
   }
 }

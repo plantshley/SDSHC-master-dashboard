@@ -4,9 +4,9 @@ import './HomePage.css'
 
 const dashboards = [
   { key: 'master', path: '/master', label: 'Master Dashboard', desc: 'All people & entities overview' },
-  { key: 'donor', path: '/donor', label: 'Donor Dashboard', desc: 'Donor history, giving trends & insights' },
+  { key: 'donor', path: '/donor', label: 'Donor Dashboard', desc: 'Donor history, giving trends, & insights' },
   { key: 'vendor', path: '/vendor', label: 'Vendor Dashboard', desc: 'Vendor payments & analysis' },
-  { key: 'costshare', path: '/cost-share', label: 'Cost-Share Dashboard', desc: 'Cost-share projects & BMP data' },
+  { key: 'costshare', path: '/cost-share', label: 'Cost-share Dashboard', desc: 'Cost-share projects & BMP data' },
 ]
 
 export default function HomePage() {
@@ -15,8 +15,8 @@ export default function HomePage() {
   return (
     <div className="home-page">
       <div className="home-hero">
-        <h1 className="home-title">SDSHC Master Dashboard</h1>
-        <p className="home-subtitle">South Dakota Soil Health Coalition — Internal Data Hub</p>
+        <h1 className="home-title">SDSHC Data Hub</h1>
+        <p className="home-subtitle">explore people, entities, dollars, and transaction history (2017 - present)</p>
       </div>
 
       <div className="home-grid">

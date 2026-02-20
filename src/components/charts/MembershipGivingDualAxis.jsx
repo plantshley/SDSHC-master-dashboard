@@ -4,7 +4,7 @@ import {
 } from 'recharts'
 import { legendStyle, currencyFormatter, numberFormatter } from './chartConfig'
 
-function DualAxisTooltip({ active, payload, label }) {
+function DualAxisTooltip({ active, payload, label, filterNote }) {
   if (!active || !payload || payload.length === 0) return null
 
   return (
@@ -20,7 +20,9 @@ function DualAxisTooltip({ active, payload, label }) {
     }}>
       <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--text-secondary)' }}>{label}</div>
       {payload.map((entry, i) => {
-        const displayName = entry.dataKey === 'membershipCount' ? 'Member Count' : 'Total Giving'
+        const displayName = entry.dataKey === 'membershipCount'
+          ? 'Member Count'
+          : filterNote ? 'Filtered Giving' : 'Total Giving'
         const displayValue = entry.dataKey === 'membershipCount'
           ? numberFormatter(entry.value)
           : currencyFormatter(entry.value)
@@ -44,11 +46,11 @@ function DualAxisTooltip({ active, payload, label }) {
   )
 }
 
-export default function MembershipGivingDualAxis({ data }) {
+export default function MembershipGivingDualAxis({ data, filterNote }) {
   if (!data || data.length === 0) return <div className="chart-empty">No data</div>
 
   return (
-    <ResponsiveContainer width="100%" height={360}>
+    <ResponsiveContainer width="100%" height={380}>
       <ComposedChart data={data} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
         <XAxis
@@ -73,13 +75,15 @@ export default function MembershipGivingDualAxis({ data }) {
           width={70}
           label={{ value: 'Giving ($)', angle: 90, position: 'insideRight', dx: 15, fontSize: 10, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
         />
-        <Tooltip content={<DualAxisTooltip />} cursor={{ fill: 'var(--accent-bg)' }} />
+        <Tooltip content={<DualAxisTooltip filterNote={filterNote} />} cursor={{ fill: 'var(--accent-bg)' }} />
         <Legend
           {...legendStyle}
           wrapperStyle={{ ...legendStyle.wrapperStyle, paddingTop: 12 }}
-          formatter={(value) =>
-            value === 'membershipCount' ? 'Member Count' : 'Total Giving'
-          }
+          formatter={(value) => {
+            if (value === 'membershipCount') return 'Member Count'
+            if (filterNote) return `Filtered Giving (${filterNote})`
+            return 'Total Giving'
+          }}
         />
         <Bar
           yAxisId="left"

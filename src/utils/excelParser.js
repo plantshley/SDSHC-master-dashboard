@@ -37,7 +37,61 @@ export async function fetchAndParseExcel(baseUrl) {
 
   return {
     donorHistory: parseDonorHistory(workbook),
+    masterDatabase: parseMasterDatabase(workbook),
   }
+}
+
+function parseMasterDatabase(workbook) {
+  // Use "Master Database" (not expanded) — it has all 4 URL columns
+  const sheetName = workbook.SheetNames.find(
+    (name) => name === 'Master Database'
+  )
+
+  if (!sheetName) {
+    console.warn('Master Database sheet not found. Available sheets:', workbook.SheetNames.join(', '))
+    return []
+  }
+
+  const sheet = workbook.Sheets[sheetName]
+  const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: null })
+
+  return rawRows.map((row) => ({
+    id: normalizeValue(row['Id']),
+    personId: normalizeValue(row['PersonID']),
+    fullName: normalizeValue(row['FullName.text'] || row['View Person']),
+    firstName: normalizeValue(row['First Name']),
+    lastName: normalizeValue(row['Last Name']),
+    relationship: normalizeValue(row['Relationship']),
+    lastTransactionYear: parseNumber(row['Last Transaction Yea']),
+    membershipStatus: normalizeValue(row['MembershipStatus']),
+    lastMembershipYear: parseNumber(row['LastMembershipYear']),
+    lifetimeGiftAmount: parseNumber(row['LifetimeGiftAmount']),
+    lifetimeVendingTotal: parseNumber(row['LifetimeVendingTotal']),
+    lifetimeCostshareTotal: parseNumber(row['LifetimeCostshareTotal']),
+    lastGiftDate: parseExcelDate(row['LastGiftDate']),
+    lastGiftYear: parseNumber(row['LastGiftYear']),
+    lastGiftAmount: parseNumber(row['LastGiftAmount']),
+    lastGiftType: normalizeValue(row['LastGiftType']),
+    thankYouSent: row['ThankYouSent'],
+    contactPreference: normalizeValue(row['Contact Preference']),
+    newsletterStatus: normalizeValue(row['Newsletter Status']),
+    email: normalizeValue(row['Email']),
+    phone: normalizeValue(row['Phone']),
+    primaryAddress: normalizeValue(row['Primary Address']),
+    street: normalizeValue(row['Street']),
+    streetII: normalizeValue(row['Street II']),
+    city: normalizeValue(row['City']),
+    state: normalizeValue(row['State']),
+    zipcode: normalizeValue(row['Zipcode']),
+    modified: parseExcelDate(row['Modified']),
+    hasDonorHistory: row['DonorHistory'] === 'View',
+    hasVendorHistory: row['VendorHistory'] === 'View',
+    hasCostShareHistory: row['CostShareHistory'] === 'View',
+    recordUrl: normalizeValue(row['RecordURL']),
+    donorUrl: normalizeValue(row['DonorURL']),
+    vendorUrl: normalizeValue(row['VendorURL']),
+    costShareUrl: normalizeValue(row['CostShareURL']),
+  }))
 }
 
 function parseDonorHistory(workbook) {
