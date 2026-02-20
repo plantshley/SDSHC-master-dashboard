@@ -82,5 +82,7 @@ function parseDonorHistory(workbook) {
     description: normalizeValue(row['Description']),
     giftMonth: normalizeValue(row['Gift Month']),
     transactionSource: normalizeValue(row['Transaction Source']),
+    recordUrl: normalizeValue(row['RecordURL']),
+    donorUrl: normalizeValue(row['DonorURL']),
   }))
 }

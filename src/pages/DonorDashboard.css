@@ -145,6 +145,26 @@
   vertical-align: middle;
 }
 
+.filter-reset-btn {
+  display: inline-block;
+  margin-left: 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-reset-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
 @media (max-width: 768px) {
   .donor-metrics-row {
     grid-template-columns: repeat(2, 1fr);

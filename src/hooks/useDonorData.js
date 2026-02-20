@@ -6,7 +6,7 @@ import {
   computeMembershipStatus,
   computeGiftTypeByYear,
   computeTransactionVolume,
-  computeTopDonors,
+  computeAllDonors,
   computeInsights,
   getUniqueGiftTypes,
   getUniqueYears,
@@ -55,7 +55,7 @@ export default function useDonorData(filters = {}) {
   const membershipStatus = useMemo(() => computeMembershipStatus(filteredRows), [filteredRows])
   const giftTypeByYear = useMemo(() => computeGiftTypeByYear(filteredRows), [filteredRows])
   const transactionVolume = useMemo(() => computeTransactionVolume(filteredRows), [filteredRows])
-  const topDonors = useMemo(() => computeTopDonors(filteredRows, 500), [filteredRows])
+  const allDonors = useMemo(() => computeAllDonors(filteredRows), [filteredRows])
   const insights = useMemo(
     () => metrics ? computeInsights(metrics, givingByYear.data, membershipStatus, filteredRows) : [],
     [metrics, givingByYear, membershipStatus, filteredRows]
@@ -91,7 +91,7 @@ export default function useDonorData(filters = {}) {
     membershipStatus,
     giftTypeByYear,
     transactionVolume,
-    topDonors,
+    allDonors,
     insights,
     filterOptions,
     filteredRowCount: filteredRows.length,

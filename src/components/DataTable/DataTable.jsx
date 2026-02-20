@@ -2,6 +2,45 @@ import { useState, useMemo, Fragment } from 'react'
 import { formatCurrencyFull } from '../../utils/formatters'
 import './DataTable.css'
 
+function CellContent({ col, row }) {
+  const value = row[col.key]
+
+  if (col.render === 'donorLink') {
+    const url = row.recordUrl
+    return url ? (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="donor-link"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {value ?? '—'}
+      </a>
+    ) : (value ?? '—')
+  }
+
+  if (col.render === 'historyLink') {
+    return value ? (
+      <a
+        href={value}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="history-link"
+        onClick={(e) => e.stopPropagation()}
+      >
+        View
+      </a>
+    ) : '—'
+  }
+
+  if (col.format === 'currency') {
+    return formatCurrencyFull(value)
+  }
+
+  return value ?? '—'
+}
+
 export default function DataTable({ data, columns }) {
   const [sortKey, setSortKey] = useState(null)
   const [sortDir, setSortDir] = useState('desc')
@@ -13,6 +52,7 @@ export default function DataTable({ data, columns }) {
     const q = search.toLowerCase()
     return data.filter((row) =>
       columns.some((col) => {
+        if (col.render === 'historyLink') return false
         const val = row[col.key]
         return val != null && String(val).toLowerCase().includes(q)
       })
@@ -97,9 +137,7 @@ export default function DataTable({ data, columns }) {
                         {col.key === 'fullName' && hasBreakdown && (
                           <span className="expand-icon">{isExpanded ? '▾' : '▸'}</span>
                         )}
-                        {col.format === 'currency'
-                          ? formatCurrencyFull(row[col.key])
-                          : row[col.key] ?? '—'}
+                        <CellContent col={col} row={row} />
                       </td>
                     ))}
                   </tr>

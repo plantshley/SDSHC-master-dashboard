@@ -152,7 +152,7 @@ export function computeTransactionVolume(rows) {
   return { data, giftTypes }
 }
 
-export function computeTopDonors(rows, limit = 25) {
+export function computeAllDonors(rows) {
   const donorMap = {}
 
   rows.forEach((r) => {
@@ -167,6 +167,8 @@ export function computeTopDonors(rows, limit = 25) {
         transactionCount: 0,
         lastGiftYear: 0,
         giftTypeBreakdown: {},
+        recordUrl: r.recordUrl || null,
+        donorUrl: r.donorUrl || null,
       }
     }
     donorMap[r.personId].totalGiven += r.giftAmount
@@ -181,11 +183,13 @@ export function computeTopDonors(rows, limit = 25) {
       donorMap[r.personId].giftTypeBreakdown[r.giftType].amount += r.giftAmount
       donorMap[r.personId].giftTypeBreakdown[r.giftType].count += 1
     }
+    // Keep URLs updated (they may differ per row, take the latest non-null)
+    if (r.recordUrl) donorMap[r.personId].recordUrl = r.recordUrl
+    if (r.donorUrl) donorMap[r.personId].donorUrl = r.donorUrl
   })
 
   return Object.values(donorMap)
     .sort((a, b) => b.totalGiven - a.totalGiven)
-    .slice(0, limit)
 }
 
 export function computeInsights(metrics, givingByYearData, membershipStatus, rows) {
@@ -235,7 +239,7 @@ export function computeInsights(metrics, givingByYearData, membershipStatus, row
   const individualGivingRows = rows.filter(
     (r) => r.giftType && !excludedTypes.some((t) => r.giftType.toLowerCase().includes(t))
   )
-  const topIndividualDonors = computeTopDonors(individualGivingRows, 1)
+  const topIndividualDonors = computeAllDonors(individualGivingRows)
   if (topIndividualDonors.length > 0) {
     insights.push({
       type: 'highlight',

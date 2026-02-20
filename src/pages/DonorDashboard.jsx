@@ -15,12 +15,13 @@ import DataTable from '../components/DataTable/DataTable'
 import InsightsCard from '../components/InsightsCard/InsightsCard'
 import './DonorDashboard.css'
 
-const TOP_DONOR_COLUMNS = [
-  { key: 'fullName', label: 'Donor Name' },
-  { key: 'membershipStatus', label: 'Status' },
+const DONOR_COLUMNS = [
+  { key: 'fullName', label: 'Donor Name', render: 'donorLink' },
+  { key: 'membershipStatus', label: 'Member Status' },
   { key: 'totalGiven', label: 'Total Given', format: 'currency', align: 'right' },
   { key: 'transactionCount', label: 'Transactions', align: 'right' },
   { key: 'lastGiftYear', label: 'Last Gift Year', align: 'right' },
+  { key: 'donorUrl', label: 'History', render: 'historyLink' },
 ]
 
 function formatYoYValue(growth) {
@@ -135,7 +136,7 @@ export default function DonorDashboard() {
     membershipStatus,
     giftTypeByYear,
     transactionVolume,
-    topDonors,
+    allDonors,
     insights,
     filterOptions,
     filteredRowCount,
@@ -156,11 +157,54 @@ export default function DonorDashboard() {
     return <div className="app-error">Error loading data: {error}</div>
   }
 
-  if (!metrics) {
+  const hasActiveFilters = filters.yearStart || filters.yearEnd
+    || filters.giftTypes.length > 0 || filters.membershipStatuses.length > 0
+
+  if (!metrics && !hasActiveFilters) {
     return <div className="app-error">No donor data found.</div>
   }
 
+  if (!metrics && hasActiveFilters) {
+    return (
+      <div className="donor-dashboard">
+        <div className="donor-dashboard-header">
+          <h1 className="donor-dashboard-title">Donor Dashboard</h1>
+        </div>
+        <FilterBar filters={filters} onFilterChange={setFilters} options={filterOptions} />
+        <div className="app-error">
+          No data found for the applied filters.
+          <button
+            className="filter-reset-btn"
+            onClick={() => setFilters({ yearStart: null, yearEnd: null, giftTypes: [], membershipStatuses: [] })}
+          >
+            Reset Filters
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   const isFiltered = filteredRowCount < totalRowCount
+
+  const donorTableTitle = (() => {
+    const parts = []
+    if (filters.yearStart && filters.yearEnd) {
+      parts.push(`${filters.yearStart}–${filters.yearEnd}`)
+    } else if (filters.yearStart) {
+      parts.push(`${filters.yearStart}+`)
+    } else if (filters.yearEnd) {
+      parts.push(`through ${filters.yearEnd}`)
+    }
+    if (filters.giftTypes.length > 0) {
+      parts.push(filters.giftTypes.join(', '))
+    }
+    if (filters.membershipStatuses.length > 0) {
+      parts.push(filters.membershipStatuses.join(', '))
+    }
+    return parts.length > 0
+      ? `All Donors — ${parts.join(' · ')}`
+      : 'All Donors'
+  })()
 
   return (
     <div className="donor-dashboard">
@@ -243,8 +287,8 @@ export default function DonorDashboard() {
           <MembershipGivingDualAxis data={membershipByYear} />
         </BentoCard>
 
-        <BentoCard title="Top Donors by Total Giving" colSpan={4}>
-          <DataTable data={topDonors} columns={TOP_DONOR_COLUMNS} />
+        <BentoCard title={donorTableTitle} colSpan={4}>
+          <DataTable data={allDonors} columns={DONOR_COLUMNS} />
         </BentoCard>
       </BentoGrid>
     </div>
