@@ -16,7 +16,7 @@ import ProfileModal from '../components/ProfileModal/ProfileModal'
 import './MasterDashboard.css'
 
 const MASTER_COLUMNS = [
-  { key: 'fullName', label: 'Name' },
+  { key: 'fullName', label: 'Name', className: 'wrap-cell' },
   { key: 'relationship', label: 'Relationship', className: 'wrap-cell' },
   { key: 'membershipStatus', label: 'Member Status' },
   { key: 'lastTransactionYear', label: 'Last Transaction', align: 'right' },
@@ -147,8 +147,8 @@ export default function MasterDashboard() {
           <RelationshipTreemap data={relationshipBreakdown} />
         </BentoCard>
 
-        <BentoCard title="Geographic Distribution" colSpan={2}>
-          <StateDistributionChart data={stateDistribution} />
+        <BentoCard title="Financial Summary by Role" colSpan={2}>
+          <FinancialByRoleChart data={financialSummary} />
         </BentoCard>
 
         <BentoCard title="Membership Status">
@@ -159,8 +159,8 @@ export default function MasterDashboard() {
           <EngagementMatrixChart data={engagementMatrix} />
         </BentoCard>
 
-        <BentoCard title="Financial Summary by Role">
-          <FinancialByRoleChart data={financialSummary} />
+        <BentoCard title="Geographic Distribution">
+          <StateDistributionChart data={stateDistribution} />
         </BentoCard>
 
         <BentoCard title={tableTitle} colSpan={4}>

@@ -16,7 +16,7 @@ import InsightsCard from '../components/InsightsCard/InsightsCard'
 import './DonorDashboard.css'
 
 const DONOR_COLUMNS = [
-  { key: 'fullName', label: 'Donor Name', render: 'donorLink' },
+  { key: 'fullName', label: 'Donor Name', render: 'donorLink', className: 'wrap-cell' },
   { key: 'membershipStatus', label: 'Member Status' },
   { key: 'totalGiven', label: 'Total Given', format: 'currency', align: 'right' },
   { key: 'transactionCount', label: 'Transactions', align: 'right' },

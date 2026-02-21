@@ -152,10 +152,10 @@ export default function ProfileModal({ person, onClose }) {
                     </span>
                   </div>
                 )}
-                {person.thankYouSent && (
+                {person.lastGiftAmount > 0 && (
                   <div className="profile-fin-detail">
-                    <span className="profile-fin-detail-label">Thank You</span>
-                    <span className="profile-fin-detail-value">{person.thankYouSent}</span>
+                    <span className="profile-fin-detail-label">Thank You Sent?</span>
+                    <span className="profile-fin-detail-value">{person.thankYouSent ? '\u2714' : '\u2718'}</span>
                   </div>
                 )}
                 {person.lastTransactionYear > 0 && (
@@ -192,12 +192,21 @@ export default function ProfileModal({ person, onClose }) {
             <Section title="Contact">
               <div className="profile-contact-list">
                 <div className="profile-contact-row profile-copyable" onClick={() => copyToClipboard(person.fullName)} title="Click to copy">
-                  <span className="profile-contact-icon">{'\u270d'}</span>
+                  <span className="profile-contact-icon">{'\u2605'}</span>
                   <div className="profile-contact-content">
                     <span className="profile-contact-label">Full Name</span>
                     <span className="profile-contact-value">{person.fullName}</span>
                   </div>
                 </div>
+                {(address || person.primaryAddress) && (
+                  <div className="profile-contact-row profile-copyable" onClick={() => copyToClipboard(address || person.primaryAddress)} title="Click to copy">
+                    <span className="profile-contact-icon">{'\u2616'}</span>
+                    <div className="profile-contact-content">
+                      <span className="profile-contact-label">Address</span>
+                      <span className="profile-contact-value">{address || person.primaryAddress}</span>
+                    </div>
+                  </div>
+                )}
                 {person.email && (
                   <div className="profile-contact-row profile-copyable" onClick={() => copyToClipboard(person.email)} title="Click to copy">
                     <span className="profile-contact-icon">{'\u2709'}</span>
@@ -208,15 +217,6 @@ export default function ProfileModal({ person, onClose }) {
                   </div>
                 )}
                 <ContactRow icon={'\u260e'} label="Phone" value={person.phone} />
-                {(address || person.primaryAddress) && (
-                  <div className="profile-contact-row profile-copyable" onClick={() => copyToClipboard(address || person.primaryAddress)} title="Click to copy">
-                    <span className="profile-contact-icon">{'\u2616'}</span>
-                    <div className="profile-contact-content">
-                      <span className="profile-contact-label">Address</span>
-                      <span className="profile-contact-value">{address || person.primaryAddress}</span>
-                    </div>
-                  </div>
-                )}
                 <ContactRow icon={'\u270e'} label="Preference" value={person.contactPreference} />
                 <ContactRow icon={'\u2709'} label="Newsletter" value={person.newsletterStatus} />
               </div>

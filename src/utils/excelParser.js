@@ -62,7 +62,7 @@ function parseMasterDatabase(workbook) {
     firstName: normalizeValue(row['First Name']),
     lastName: normalizeValue(row['Last Name']),
     relationship: normalizeValue(row['Relationship']),
-    lastTransactionYear: parseNumber(row['Last Transaction Yea']),
+    lastTransactionYear: parseNumber(row['Last Transaction Yea']) || null,
     membershipStatus: normalizeValue(row['MembershipStatus']),
     lastMembershipYear: parseNumber(row['LastMembershipYear']),
     lifetimeGiftAmount: parseNumber(row['LifetimeGiftAmount']),

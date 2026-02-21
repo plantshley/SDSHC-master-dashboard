@@ -160,10 +160,14 @@ export default function DataTable({ data, columns, onRowClick, searchPlaceholder
                     <td className="data-table-rank">{i + 1}</td>
                     {columns.map((col) => (
                       <td key={col.key} className={`${col.align === 'right' ? 'text-right' : ''} ${col.className || ''}`}>
-                        {col.key === 'fullName' && hasBreakdown && (
-                          <span className="expand-icon">{isExpanded ? '▾' : '▸'}</span>
+                        {col.key === 'fullName' && hasBreakdown ? (
+                          <span className="name-cell-content">
+                            <span className="expand-icon">{isExpanded ? '▾' : '▸'}</span>
+                            <CellContent col={col} row={row} />
+                          </span>
+                        ) : (
+                          <CellContent col={col} row={row} />
                         )}
-                        <CellContent col={col} row={row} />
                       </td>
                     ))}
                   </tr>
