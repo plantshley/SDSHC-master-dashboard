@@ -28,7 +28,7 @@ export default function EngagementMatrixChart({ data }) {
           stroke="var(--text-muted)"
           width={50}
         />
-        <Tooltip content={<CustomTooltipContent valueFormatter={countFormatter} />} />
+        <Tooltip content={<CustomTooltipContent valueFormatter={countFormatter} />} cursor={{ fill: 'var(--accent-bg)' }} />
         <Legend {...legendStyle} />
         {STATUSES.map((status, i) => (
           <Bar

@@ -44,6 +44,7 @@ export default function TransactionVolumeChart({ data, giftTypes }) {
           />
           <Tooltip
             content={<CustomTooltipContent valueFormatter={txFormatter} />}
+            cursor={{ fill: 'var(--accent-bg)' }}
           />
           {giftTypes.map((type, i) => (
             <Line

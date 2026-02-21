@@ -1,7 +1,7 @@
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts'
 import { CHART_COLORS } from './chartConfig'
 
-const SMALL_THRESHOLD = 5 // percent — items below this get legend instead of label
+const SMALL_THRESHOLD = 6 // percent — items below this get legend instead of label
 
 function wrapText(text, maxCharsPerLine) {
   if (!text) return []
@@ -51,7 +51,7 @@ function CustomContent({ x, y, width, height, depth, name, count, fill, percenta
           textAnchor="middle"
           dominantBaseline="central"
           fill="#fff"
-          fontSize={width < 70 ? 10 : 12}
+          fontSize={width < 70 ? 8 : 12}
           fontFamily="'JetBrains Mono', monospace"
           fontWeight={600}
         >
@@ -65,7 +65,7 @@ function CustomContent({ x, y, width, height, depth, name, count, fill, percenta
           textAnchor="middle"
           dominantBaseline="central"
           fill="rgba(255,255,255,0.75)"
-          fontSize={10}
+          fontSize={12}
           fontFamily="'JetBrains Mono', monospace"
         >
           {(count || 0).toLocaleString()}

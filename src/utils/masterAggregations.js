@@ -64,12 +64,12 @@ export function computeRelationshipBreakdown(rows) {
     }
   })
 
-  const total = Object.values(counts).reduce((s, v) => s + v, 0)
+  const totalPeople = rows.length
   return Object.entries(counts)
     .map(([status, count]) => ({
       status,
       count,
-      percentage: total > 0 ? (count / total) * 100 : 0,
+      percentage: totalPeople > 0 ? (count / totalPeople) * 100 : 0,
     }))
     .sort((a, b) => b.count - a.count)
 }

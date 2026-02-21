@@ -114,7 +114,7 @@ export default function MasterDashboard() {
   return (
     <div className="master-dashboard">
       <div className="master-dashboard-header">
-        <h1 className="master-dashboard-title">Master Peoples/Entities Dashboard</h1>
+        <h1 className="master-dashboard-title">Master Peoples / Entities Dashboard</h1>
         {isFiltered && (
           <span className="master-dashboard-filter-badge">
             Showing {filteredCount.toLocaleString()} of {totalCount.toLocaleString()} records
