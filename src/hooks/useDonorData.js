@@ -94,6 +94,7 @@ export default function useDonorData(filters = {}) {
     allDonors,
     insights,
     filterOptions,
+    filteredRows,
     filteredRowCount: filteredRows.length,
     totalRowCount: rawRows.length,
     membershipByYear,

@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import useMasterData from '../hooks/useMasterData'
 import { formatCurrency, formatNumber } from '../utils/formatters'
+import { exportAsImage, exportChartDataExcel, exportTableData, formatDateForExport } from '../utils/exportUtils'
 import BentoGrid from '../components/BentoGrid/BentoGrid'
 import BentoCard from '../components/BentoCard/BentoCard'
 import MetricCard from '../components/MetricCard/MetricCard'
@@ -36,6 +37,7 @@ const EMPTY_FILTERS = {
 export default function MasterDashboard() {
   const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [selectedPerson, setSelectedPerson] = useState(null)
+  const chartsRef = useRef(null)
 
   const {
     isLoading,
@@ -52,6 +54,77 @@ export default function MasterDashboard() {
     filteredCount,
     totalCount,
   } = useMasterData(filters)
+
+  const handleExportImage = useCallback(async () => {
+    if (chartsRef.current) {
+      await exportAsImage(chartsRef.current, 'master-dashboard')
+    }
+  }, [])
+
+  const handleExportChartData = useCallback(() => {
+    if (!metrics) return
+    exportChartDataExcel({
+      metrics,
+      metricsTitle: 'Master Metrics',
+      sheets: [
+        { name: 'Relationship Breakdown', data: relationshipBreakdown },
+        { name: 'Membership Breakdown', data: membershipBreakdown },
+        { name: 'State Distribution', data: stateDistribution },
+        { name: 'Engagement Matrix', data: engagementMatrix },
+        { name: 'Financial Summary', data: financialSummary },
+      ],
+      filename: 'master-chart-data',
+    })
+  }, [metrics, relationshipBreakdown, membershipBreakdown, stateDistribution, engagementMatrix, financialSummary])
+
+  const handleExportTableData = useCallback(() => {
+    if (!allPeople) return
+    const exportRows = allPeople.map((r) => ({
+      'ID': r.id,
+      'Person ID': r.personId,
+      'Full Name': r.fullName,
+      'First Name': r.firstName,
+      'Last Name': r.lastName,
+      'Relationship': r.relationship,
+      'Membership Status': r.membershipStatus,
+      'Last Membership Year': r.lastMembershipYear,
+      'Last Transaction Year': r.lastTransactionYear,
+      'Lifetime Giving': r.lifetimeGiftAmount,
+      'Lifetime Vending': r.lifetimeVendingTotal,
+      'Lifetime Cost-share': r.lifetimeCostshareTotal,
+      'Last Gift Date': formatDateForExport(r.lastGiftDate),
+      'Last Gift Year': r.lastGiftYear,
+      'Last Gift Amount': r.lastGiftAmount,
+      'Last Gift Type': r.lastGiftType,
+      'Thank You Sent': r.thankYouSent,
+      'Email': r.email,
+      'Phone': r.phone,
+      'Primary Address': r.primaryAddress,
+      'Street': r.street,
+      'Street II': r.streetII,
+      'City': r.city,
+      'State': r.state,
+      'Zipcode': r.zipcode,
+      'Contact Preference': r.contactPreference,
+      'Newsletter Status': r.newsletterStatus,
+      'Modified': formatDateForExport(r.modified),
+      'Has Donor History': r.hasDonorHistory,
+      'Has Vendor History': r.hasVendorHistory,
+      'Has Cost-share History': r.hasCostShareHistory,
+      'Record URL': r.recordUrl,
+      'Donor URL': r.donorUrl,
+      'Vendor URL': r.vendorUrl,
+      'Cost-share URL': r.costShareUrl,
+    }))
+    exportTableData(exportRows, 'master-database')
+  }, [allPeople])
+
+  const exportHandlers = {
+    onExportImage: handleExportImage,
+    onExportChartData: handleExportChartData,
+    onExportTableData: handleExportTableData,
+    tableDataLabel: 'Export Table Data (Excel)',
+  }
 
   const masterFilterFields = [
     { type: 'multiSelect', key: 'relationships', label: 'Relationship', options: filterOptions.relationships },
@@ -122,8 +195,10 @@ export default function MasterDashboard() {
         )}
       </div>
 
-      <FilterBar filters={filters} onFilterChange={setFilters} fields={masterFilterFields} clearFilters={clearFilters} />
+      <FilterBar filters={filters} onFilterChange={setFilters} fields={masterFilterFields} clearFilters={clearFilters} exportHandlers={exportHandlers} />
 
+      {/* Capture area for image export */}
+      <div ref={chartsRef} className="export-capture-area">
       {/* Key Metrics */}
       <div className="master-metrics-row">
         <MetricCard label="Total People" value={formatNumber(metrics.totalPeople)} />
@@ -162,7 +237,10 @@ export default function MasterDashboard() {
         <BentoCard title="Geographic Distribution">
           <StateDistributionChart data={stateDistribution} />
         </BentoCard>
+      </BentoGrid>
+      </div>{/* end capture area */}
 
+      <BentoGrid>
         <BentoCard title={tableTitle} colSpan={4}>
           <DataTable
             data={allPeople}

@@ -4,6 +4,13 @@
   gap: 16px;
 }
 
+.donor-dashboard .export-capture-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--bg-primary);
+}
+
 .donor-dashboard-header {
   display: flex;
   align-items: baseline;

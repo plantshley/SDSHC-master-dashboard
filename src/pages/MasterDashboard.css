@@ -4,6 +4,13 @@
   gap: 16px;
 }
 
+.master-dashboard .export-capture-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--bg-primary);
+}
+
 .master-dashboard-header {
   display: flex;
   align-items: baseline;

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import useDonorData from '../hooks/useDonorData'
 import { formatCurrency, formatCurrencyFull, formatNumber, formatPercent } from '../utils/formatters'
 import { CHART_COLORS } from '../theme/themeConfig'
@@ -13,6 +13,7 @@ import TransactionVolumeChart from '../components/charts/TransactionVolumeChart'
 import MembershipGivingDualAxis from '../components/charts/MembershipGivingDualAxis'
 import DataTable from '../components/DataTable/DataTable'
 import InsightsCard from '../components/InsightsCard/InsightsCard'
+import { exportAsImage, exportChartDataExcel, exportTableData, formatDateForExport } from '../utils/exportUtils'
 import './DonorDashboard.css'
 
 const DONOR_COLUMNS = [
@@ -127,6 +128,7 @@ export default function DonorDashboard() {
     membershipStatuses: [],
   })
   const [overlayType, setOverlayType] = useState('Membership')
+  const chartsRef = useRef(null)
 
   const {
     isLoading,
@@ -139,10 +141,58 @@ export default function DonorDashboard() {
     allDonors,
     insights,
     filterOptions,
+    filteredRows,
     filteredRowCount,
     totalRowCount,
     membershipByYear,
   } = useDonorData(filters)
+
+  const handleExportImage = useCallback(async () => {
+    if (chartsRef.current) {
+      await exportAsImage(chartsRef.current, 'donor-dashboard')
+    }
+  }, [])
+
+  const handleExportChartData = useCallback(() => {
+    if (!metrics) return
+    exportChartDataExcel({
+      metrics,
+      metricsTitle: 'Donor Metrics',
+      sheets: [
+        { name: 'Giving by Year', data: givingByYear.data },
+        { name: 'Membership Status', data: membershipStatus },
+        { name: 'Gift Type by Year', data: giftTypeByYear.data },
+        { name: 'Transaction Volume', data: transactionVolume.data },
+        { name: 'Membership by Year', data: membershipByYear },
+      ],
+      filename: 'donor-chart-data',
+    })
+  }, [metrics, givingByYear, membershipStatus, giftTypeByYear, transactionVolume, membershipByYear])
+
+  const handleExportTableData = useCallback(() => {
+    if (!filteredRows) return
+    const exportRows = filteredRows.map((r) => ({
+      'Person ID': r.personId,
+      'Full Name': r.fullName,
+      'Membership Status': r.membershipStatus,
+      'Gift Date': formatDateForExport(r.giftDate),
+      'Gift Year': r.giftYear,
+      'Gift Amount': r.giftAmount,
+      'Gift Type': r.giftType,
+      'Memo': r.memo,
+      'Description': r.description,
+      'Gift Month': r.giftMonth,
+      'Transaction Source': r.transactionSource,
+    }))
+    exportTableData(exportRows, 'donor-transactions')
+  }, [filteredRows])
+
+  const exportHandlers = {
+    onExportImage: handleExportImage,
+    onExportChartData: handleExportChartData,
+    onExportTableData: handleExportTableData,
+    tableDataLabel: 'Export Transaction Data (Excel)',
+  }
 
   const donorFilterFields = [
     { type: 'yearRange', key: ['yearStart', 'yearEnd'], label: 'Year Range', options: filterOptions.years },
@@ -233,8 +283,10 @@ export default function DonorDashboard() {
         )}
       </div>
 
-      <FilterBar filters={filters} onFilterChange={setFilters} fields={donorFilterFields} clearFilters={clearDonorFilters} />
+      <FilterBar filters={filters} onFilterChange={setFilters} fields={donorFilterFields} clearFilters={clearDonorFilters} exportHandlers={exportHandlers} />
 
+      {/* Capture area for image export */}
+      <div ref={chartsRef} className="export-capture-area">
       {/* Key Metrics */}
       <div className="donor-metrics-row">
         <MetricCard label="Total Donors" value={formatNumber(metrics.totalDonors)} />
@@ -302,7 +354,10 @@ export default function DonorDashboard() {
         <BentoCard title={`Membership Count & ${membershipGivingLabel} Giving by Year`} colSpan={2}>
           <MembershipGivingDualAxis data={membershipByYear} filterNote={membershipGivingFilterNote} />
         </BentoCard>
+      </BentoGrid>
+      </div>{/* end capture area */}
 
+      <BentoGrid>
         <BentoCard title={donorTableTitle} colSpan={4}>
           <DataTable data={allDonors} columns={DONOR_COLUMNS} searchPlaceholder="Search donors..." />
         </BentoCard>

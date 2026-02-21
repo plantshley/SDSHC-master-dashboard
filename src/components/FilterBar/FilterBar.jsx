@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
+import ExportDropdown from '../ExportDropdown/ExportDropdown'
 import './FilterBar.css'
 
-export default function FilterBar({ filters, onFilterChange, fields, clearFilters }) {
+export default function FilterBar({ filters, onFilterChange, fields, clearFilters, exportHandlers }) {
   const hasActiveFilters = fields.some((field) => {
     if (field.type === 'yearRange') {
       const [startKey, endKey] = field.key
@@ -68,6 +69,15 @@ export default function FilterBar({ filters, onFilterChange, fields, clearFilter
         >
           Clear All
         </button>
+      )}
+
+      {exportHandlers && (
+        <ExportDropdown
+          onExportImage={exportHandlers.onExportImage}
+          onExportChartData={exportHandlers.onExportChartData}
+          onExportTableData={exportHandlers.onExportTableData}
+          tableDataLabel={exportHandlers.tableDataLabel}
+        />
       )}
     </div>
   )

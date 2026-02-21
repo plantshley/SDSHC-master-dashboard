@@ -12,7 +12,8 @@
       "Bash(ls:*)",
       "Bash(node -e:*)",
       "Bash(node --input-type=module -e:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npm install:*)"
     ]
   }
 }
