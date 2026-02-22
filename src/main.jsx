@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { DataProvider } from './context/DataContext'
+import PasswordGate from './components/PasswordGate/PasswordGate'
 import App from './App'
 import HomePage from './pages/HomePage'
 import DonorDashboard from './pages/DonorDashboard'
@@ -14,6 +15,7 @@ import './App.css'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HashRouter>
+      <PasswordGate>
       <DataProvider>
         <Routes>
           <Route element={<App />}>
@@ -26,6 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           </Route>
         </Routes>
       </DataProvider>
+      </PasswordGate>
     </HashRouter>
   </React.StrictMode>
 )
