@@ -4,7 +4,7 @@ import {
 } from 'recharts'
 import { CHART_COLORS, legendStyle, currencyFormatter, CustomTooltipContent } from './chartConfig'
 
-export default function GivingOverTimeChart({ data, giftTypes, selectedType }) {
+export default function GivingOverTimeChart({ data, giftTypes, selectedType, barLabel = 'Total Giving' }) {
   if (!data || data.length === 0) return <div className="chart-empty">No data</div>
 
   return (
@@ -28,7 +28,7 @@ export default function GivingOverTimeChart({ data, giftTypes, selectedType }) {
         <Bar
           yAxisId="left"
           dataKey="totalGiving"
-          name="Total Giving"
+          name={barLabel}
           fill="var(--accent)"
           fillOpacity={0.7}
           radius={[4, 4, 0, 0]}

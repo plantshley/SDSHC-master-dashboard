@@ -25,7 +25,7 @@ function renderCustomLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent
   )
 }
 
-function CustomPieTooltip({ active, payload }) {
+function CustomPieTooltip({ active, payload, tooltipLabel }) {
   if (!active || !payload || payload.length === 0) return null
   const entry = payload[0]
   const data = entry.payload
@@ -51,14 +51,14 @@ function CustomPieTooltip({ active, payload }) {
           flexShrink: 0,
         }} />
         <span>
-          <strong>{data.status}</strong>: {data.count} donors ({data.percentage.toFixed(1)}%)
+          <strong>{data.status}</strong>: {data.count} {tooltipLabel} ({data.percentage.toFixed(1)}%)
         </span>
       </div>
     </div>
   )
 }
 
-export default function MembershipStatusChart({ data }) {
+export default function MembershipStatusChart({ data, tooltipLabel = 'donors' }) {
   if (!data || data.length === 0) return <div className="chart-empty">No data</div>
 
   return (
@@ -84,7 +84,7 @@ export default function MembershipStatusChart({ data }) {
             />
           ))}
         </Pie>
-        <Tooltip content={<CustomPieTooltip />} />
+        <Tooltip content={<CustomPieTooltip tooltipLabel={tooltipLabel} />} />
         <Legend {...legendStyle} />
       </PieChart>
     </ResponsiveContainer>

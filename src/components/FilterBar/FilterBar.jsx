@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import ExportDropdown from '../ExportDropdown/ExportDropdown'
 import './FilterBar.css'
 
-export default function FilterBar({ filters, onFilterChange, fields, clearFilters, exportHandlers }) {
+export default function FilterBar({ filters, onFilterChange, fields, clearFilters, exportHandlers, categoryInfoMap }) {
   const hasActiveFilters = fields.some((field) => {
     if (field.type === 'yearRange') {
       const [startKey, endKey] = field.key
@@ -62,6 +62,8 @@ export default function FilterBar({ filters, onFilterChange, fields, clearFilter
         return null
       })}
 
+      {categoryInfoMap && <CategoryInfoButton categoryInfoMap={categoryInfoMap} />}
+
       {hasActiveFilters && (
         <button
           className="filter-clear-btn"
@@ -78,6 +80,46 @@ export default function FilterBar({ filters, onFilterChange, fields, clearFilter
           onExportTableData={exportHandlers.onExportTableData}
           tableDataLabel={exportHandlers.tableDataLabel}
         />
+      )}
+    </div>
+  )
+}
+
+function CategoryInfoButton({ categoryInfoMap }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const entries = Object.entries(categoryInfoMap)
+
+  return (
+    <div className="filter-info-wrapper" ref={ref}>
+      <button
+        className={`filter-info-btn ${open ? 'active' : ''}`}
+        onClick={() => setOpen(!open)}
+        title="View category groupings"
+      >
+        i
+      </button>
+      {open && (
+        <div className="category-info-popover">
+          <div className="category-info-title">Category Groupings</div>
+          <div className="category-info-list">
+            {entries.map(([category, rawValues]) => (
+              <div key={category} className="category-info-group">
+                <div className="category-info-heading">{category}</div>
+                <div className="category-info-values">{rawValues.join(', ')}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   )

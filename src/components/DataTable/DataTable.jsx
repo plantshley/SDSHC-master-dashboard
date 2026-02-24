@@ -57,7 +57,7 @@ function CellContent({ col, row }) {
   return value ?? '—'
 }
 
-export default function DataTable({ data, columns, onRowClick, searchPlaceholder }) {
+export default function DataTable({ data, columns, onRowClick, searchPlaceholder, breakdownKey = 'giftTypeBreakdown' }) {
   const [sortKey, setSortKey] = useState(null)
   const [sortDir, setSortDir] = useState('desc')
   const [search, setSearch] = useState('')
@@ -107,7 +107,7 @@ export default function DataTable({ data, columns, onRowClick, searchPlaceholder
     if (onRowClick) {
       onRowClick(row)
     } else {
-      const hasBreakdown = row.giftTypeBreakdown && Object.keys(row.giftTypeBreakdown).length > 0
+      const hasBreakdown = row[breakdownKey] && Object.keys(row[breakdownKey]).length > 0
       if (hasBreakdown) toggleExpand(row.personId)
     }
   }
@@ -149,7 +149,7 @@ export default function DataTable({ data, columns, onRowClick, searchPlaceholder
           <tbody>
             {sorted.map((row, i) => {
               const isExpanded = expandedRow === row.personId
-              const hasBreakdown = !onRowClick && row.giftTypeBreakdown && Object.keys(row.giftTypeBreakdown).length > 0
+              const hasBreakdown = !onRowClick && row[breakdownKey] && Object.keys(row[breakdownKey]).length > 0
               const isClickable = onRowClick || hasBreakdown
               return (
                 <Fragment key={row.personId || i}>
@@ -175,7 +175,7 @@ export default function DataTable({ data, columns, onRowClick, searchPlaceholder
                     <tr className="detail-row">
                       <td colSpan={columns.length + 1}>
                         <div className="detail-breakdown">
-                          {Object.entries(row.giftTypeBreakdown)
+                          {Object.entries(row[breakdownKey])
                             .sort(([, a], [, b]) => b.amount - a.amount)
                             .map(([type, info]) => (
                               <div key={type} className="detail-item">

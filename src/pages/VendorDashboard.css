@@ -1,0 +1,229 @@
+.vendor-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vendor-dashboard .export-capture-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--bg-primary);
+}
+
+.vendor-dashboard-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.vendor-dashboard-title {
+  font-family: var(--font-title);
+  font-size: 24px;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.vendor-dashboard-filter-badge {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--accent-light);
+}
+
+.vendor-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1200px) {
+  .vendor-metrics-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Spending chart title with inline dropdown */
+.giving-chart-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.overlay-dropdown {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  background-color: var(--accent-bg);
+  border: 1px solid var(--accent-light) !important;
+  border-radius: 6px;
+  padding: 2px 20px 2px 6px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  outline: none !important;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  box-shadow: none !important;
+}
+
+.overlay-dropdown option {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.overlay-dropdown:focus {
+  border-color: var(--accent) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.overlay-dropdown:focus-visible {
+  outline: none !important;
+}
+
+/* Category By Year Table */
+.gift-type-totals {
+  height: 100%;
+}
+
+.gift-type-table-scroll {
+  overflow-x: auto;
+}
+
+.gift-type-totals-table {
+  width: 100%;
+  font-size: 11px;
+  border-collapse: collapse;
+}
+
+.gift-type-totals-table th {
+  padding: 6px 8px;
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.gift-type-totals-table td {
+  padding: 5px 8px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.gift-type-totals-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.gift-type-year {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.gift-type-total-row {
+  border-top: 2px solid var(--border-color);
+}
+
+.gift-type-total-row td {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.gift-type-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.filter-reset-btn {
+  display: inline-block;
+  margin-left: 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-reset-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* Transaction Volume toggle legend */
+.tx-volume-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tx-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 8px;
+  justify-content: center;
+}
+
+.tx-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tx-legend-item:hover {
+  background: var(--accent-bg);
+}
+
+.tx-legend-off {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.tx-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+@media (max-width: 768px) {
+  .vendor-metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .vendor-dashboard-title {
+    font-size: 18px;
+  }
+}

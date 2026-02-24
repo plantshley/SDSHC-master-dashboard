@@ -5,6 +5,11 @@ const EXPECTED_DONOR_COLUMNS = [
   'Gift Amount', 'Gift Type', 'LifetimeGiftAmount'
 ]
 
+const EXPECTED_VENDOR_COLUMNS = [
+  'FullName', 'PersonID', 'Amount', 'Payment Year',
+  'Payment Type', 'Split Note', 'LifetimeVendingTotal'
+]
+
 function normalizeValue(val) {
   if (val === null || val === undefined || val === '') return null
   return val
@@ -37,6 +42,7 @@ export async function fetchAndParseExcel(baseUrl) {
 
   return {
     donorHistory: parseDonorHistory(workbook),
+    vendorHistory: parseVendorHistory(workbook),
     masterDatabase: parseMasterDatabase(workbook),
   }
 }
@@ -138,5 +144,51 @@ function parseDonorHistory(workbook) {
     transactionSource: normalizeValue(row['Transaction Source']),
     recordUrl: normalizeValue(row['RecordURL']),
     donorUrl: normalizeValue(row['DonorURL']),
+  }))
+}
+
+function parseVendorHistory(workbook) {
+  const sheetName = workbook.SheetNames.find(
+    (name) => name.toLowerCase().includes('vendor history')
+  )
+
+  if (!sheetName) {
+    console.warn(`"Vendor History" sheet not found. Available sheets: ${workbook.SheetNames.join(', ')}`)
+    return []
+  }
+
+  const sheet = workbook.Sheets[sheetName]
+  const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: null })
+
+  if (rawRows.length > 0) {
+    const cols = Object.keys(rawRows[0])
+    const missing = EXPECTED_VENDOR_COLUMNS.filter(
+      (c) => !cols.some((col) => col.trim() === c)
+    )
+    if (missing.length > 0) {
+      console.warn(`Vendor History: missing expected columns: ${missing.join(', ')}`)
+    }
+  }
+
+  return rawRows.map((row) => ({
+    id: normalizeValue(row['Id']),
+    qbTransactionId: normalizeValue(row['QB Transaction ID']),
+    personId: normalizeValue(row['PersonID'] || row['Person IDId']),
+    fullName: normalizeValue(row['FullName']),
+    firstName: normalizeValue(row['First Name']),
+    lastName: normalizeValue(row['Last Name']),
+    amount: parseNumber(row['Amount']),
+    paymentDate: parseExcelDate(row['Payment Date']),
+    paymentYear: parseNumber(row['Payment Year'] || row['Payment Year0']),
+    paymentMonth: normalizeValue(row['Payment Month']),
+    paymentType: normalizeValue(row['Payment Type']),
+    lifetimeVendingTotal: parseNumber(row['LifetimeVendingTotal']),
+    lastVendYear: parseNumber(row['Last Vend Year']),
+    memo: normalizeValue(row['Memo']),
+    splitNote: normalizeValue(row['Split Note']),
+    transactionSource: normalizeValue(row['Transaction Source']),
+    modified: parseExcelDate(row['Modified']),
+    recordUrl: normalizeValue(row['RecordURL']),
+    vendorUrl: normalizeValue(row['VendorURL']),
   }))
 }
