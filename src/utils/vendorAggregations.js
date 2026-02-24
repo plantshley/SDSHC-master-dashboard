@@ -1,41 +1,84 @@
 // Vendor names used to sub-categorize Accounts Payable rows
 const AP_MEDIA_VENDORS = [
-  'kcsd', 'kccr', 'kgfx', 'korn', 'kjam', 'knwc', 'kwat', 'kbrk', 'kimm',
-  'ksdr', 'kota', 'kevn', 'kbhb', 'kdsj', 'kelo', 'wnax', 'kijv', 'kisd',
-  'kmit', 'radio', 'broadcasting', 'midcontinent', 'impact marketing',
-  'rooster radio', 'results radio', 'saga communications', 'tv', 'television',
+  'radio', 'broadcasting', 'midcontinent', 'impact marketing',
+  'rooster radio', 'results radio', 'saga communications', 'television',
+  'townsquare media', 'homeslice media', 'newscenter', 'nexstar',
+  'lamar companies', 'forum communications', 'leeagri media', 'friends of sdpb',
+  'fp-tsln-fre', 'agoutlook',
+]
+// FCC call-letter pattern: K or W followed by 2-4 letters (end of string, or followed by space/dash)
+const AP_CALL_LETTER_RE = /^[kw][a-z]{2,4}([\s-]|$)/i
+const AP_NEWSPAPER_VENDORS = [
+  'journal', 'register', 'plainsman', 'gazette', 'press', 'news',
+  'pioneer', 'review', 'courier', 'courant', 'current', 'weekly',
+  'cattle business weekly', 'rfd newspapers', 'true dakotan',
+  'central dakota times', 'hamlin county publishing', 'hand county publishing',
+  'dakota farm talk', 'gatehouse media',
 ]
 const AP_PRINTING_VENDORS = [
   'minuteman press', 'quality quick print', 'allegra', 'vanguard printing',
-  'printing', 'bindery',
+  'printing', 'bindery', 'alphagraphics', 'midstates group', 'performance press',
+]
+const AP_MARKETING_VENDORS = [
+  '44i marketing', 'mcquillen creative', 'henkinschultz', 'johnson & richter creative',
+  'geffdog designs', 'halo branded', 'national pen', 'make it mine designs',
+  'championship awards', 'm & r signs', 'ag storytellers', 'amanda radke',
+  'generation photography', 'vision video', 'molten audio', 'madison sound',
+  'dakota giftware',
 ]
 const AP_HOTEL_VENDORS = [
-  'hotel', 'inn', 'suites', 'lodge', 'ramkota', 'clubhouse', 'convention',
+  'hotel', 'suites', 'lodge', 'ramkota', 'clubhouse',
   'holiday inn', 'best western', 'comfort', 'hampton', 'fairfield',
+  'event center', 'abbey of the hills',
+]
+const AP_PERSONNEL_VENDORS = [
+  'sd association of conservation districts', 'sd assoc of cons',
+]
+const AP_CREDIT_CARD_VENDORS = [
+  'first national bank', 'bank of omaha',
+]
+// Words that indicate a business, not an individual person
+const BUSINESS_INDICATORS = [
+  'llc', 'inc', 'corp', 'co.', 'ltd', 'foundation', 'association', 'assoc',
+  'district', 'company', 'services', 'labs', 'seeds', 'media', 'group',
+  'systems', 'apps', 'food', 'cafe', 'bar', 'grill', 'grille', 'transport',
+  'construction', 'insurance', 'enterprises', 'bureau', 'museum', 'extension',
+  'solutions', 'office', 'center', 'church', 'club', 'brethren', 'university',
+  'sdsu', 'press', 'publishing', 'toilets', 'sanitary', 'sanitation', 'plumbing',
+  'supply', 'consulting', 'law', 'fund', 'coalition', 'action', 'ventures',
+  'development', 'workshop', 'ranch', 'farms', 'farm', 'agronomy', 'laboratory',
+  'laboratories', 'portables', 'portable', 'rent-all', 'rentals', 'designs',
+  'creative', 'photography', 'video', 'audio', 'signs', 'awards', 'limousine',
+  'bus ', 'truck', 'catering', 'foods', 'lockbox', 'wireless', 'pavilion', 'pavillion',
+  'sportsman', 'legion', 'fest', 'storytellers', 'sd ', 'south dakota',
+  'nonprofit', 'hutterian', 'conservation', 'r&d', 'rc&d', 'lines',
+  'communications', 'county', 'state of',
 ]
 
 // Category aggregation mapping: raw Split Note → aggregated category
 const CATEGORY_LOOKUP = new Map([
+  // Contractual: people → Personnel, businesses → Contractual (handled in function)
   ['Contractual', 'Contractual'],
   ['Soil Health School', 'Soil Health School'],
   ['Annual Meeting', 'Annual Meeting'],
-  // On Farm Trials & Demos
-  ['On Farm Trial', 'On Farm Trials & Demos'],
-  ['Test Plots', 'On Farm Trials & Demos'],
-  ['Test plots', 'On Farm Trials & Demos'],
-  ['Demo Plots I&E', 'On Farm Trials & Demos'],
-  ['Demonstration Supplies', 'On Farm Trials & Demos'],
-  // Media Production
-  ['Audio', 'Media Production'],
-  ['Video', 'Media Production'],
-  ['Videos', 'Media Production'],
-  ['Commercials', 'Media Production'],
-  // Information & Education
+  // Cost-Share
+  ['On Farm Trial', 'Cost-Share'],
+  ['8200 DANR/319 Grant Expense', 'Cost-Share'],
+  // Information & Education (includes former test plots/demos)
+  ['Test Plots', 'Information & Education'],
+  ['Test plots', 'Information & Education'],
+  ['Demo Plots I&E', 'Information & Education'],
+  ['Demonstration Supplies', 'Information & Education'],
   ['Information Distribution', 'Information & Education'],
   ['Education', 'Information & Education'],
   ['Information and Education', 'Information & Education'],
   ['Literature', 'Information & Education'],
   ['Printed', 'Information & Education'],
+  // Media Production
+  ['Audio', 'Media Production'],
+  ['Video', 'Media Production'],
+  ['Videos', 'Media Production'],
+  ['Commercials', 'Media Production'],
   // Workshops & Events
   ['Workshops', 'Workshops & Events'],
   ['Workshop Expense', 'Workshops & Events'],
@@ -88,7 +131,6 @@ const CATEGORY_LOOKUP = new Map([
   ['8402 SARE Soil Quilt', 'Grants & Projects'],
   ['8401 Custer Peak Virtual', 'Grants & Projects'],
   ['8400 Private Foundation/Org Exp', 'Grants & Projects'],
-  ['8200 DANR/319 Grant Expense', 'Grants & Projects'],
   ['NR206740 CA C010', 'Grants & Projects'],
   ['8300 Other Governmental Grant', 'Grants & Projects'],
   ['8100 Contribution Agreement', 'Grants & Projects'],
@@ -98,20 +140,32 @@ const CATEGORY_LOOKUP = new Map([
 
 // Exported for the category info popover
 export const VENDOR_CATEGORY_MAP = {
-  'Contractual': ['Contractual'],
+  'Contractual': ['Contractual (businesses/orgs only)'],
   'Soil Health School': ['Soil Health School'],
-  'Annual Meeting': ['Annual Meeting', 'AP: hotels/venues (Ramkota, Holiday Inn, etc.)'],
-  'On Farm Trials & Demos': ['On Farm Trial', 'Test Plots', 'Test plots', 'Demo Plots I&E', 'Demonstration Supplies'],
+  'Annual Meeting': ['Annual Meeting', 'AP: hotels, venues, event centers'],
+  'Cost-Share': ['On Farm Trial', '8200 DANR/319 Grant Expense', 'AP/SPLIT memos: cover crop, cost share, on farm trial, 319, DANR'],
+  'Information & Education': ['Information Distribution', 'Education', 'Information and Education', 'Literature', 'Printed', 'Test Plots', 'Demo Plots I&E', 'Demonstration Supplies', 'AP: printing companies, test plot/demo memos'],
   'Media Production': ['Audio', 'Video', 'Videos', 'Commercials'],
-  'Information & Education': ['Information Distribution', 'Education', 'Information and Education', 'Literature', 'Printed', 'AP: printing companies'],
   'Workshops & Events': ['Workshops', 'Workshop Expense', 'Booths', 'Bus Tours Field Walks', 'Meals and Entertainment'],
   'Supplies & Office': ['Supplies', 'Office Supplies', 'Computer and Internet Expenses'],
-  'Marketing & Outreach': ['Advertising and Promotion', 'Influencer Outreach', 'Social Med promo influ outreach', 'Website', 'Website Expenses', 'Website, social media', 'Newsletter', 'FFA, 4H, Envirothon', 'Voices for Soil Health', 'AP: radio/TV stations & media companies'],
-  'Personnel': ['Personnel/Wages', 'Salary', 'Personnel', 'Intern', 'Personnel Expenses', 'Non Salary', 'Mentoring', 'Mentors', '-SPLIT- (default)'],
+  'Marketing & Outreach': ['Advertising and Promotion', 'Influencer Outreach', 'Social Med promo influ outreach', 'Website', 'Website Expenses', 'Website, social media', 'Newsletter', 'FFA, 4H, Envirothon', 'Voices for Soil Health', 'AP: radio/TV stations, newspapers, marketing agencies'],
+  'Personnel': ['Personnel/Wages', 'Salary', 'Personnel', 'Intern', 'Personnel Expenses', 'Non Salary', 'Mentoring', 'Mentors', 'Contractual (individuals)', '-SPLIT- (default)', 'AP: individual people, SDACD'],
   'Professional & Admin': ['Professional Fees', 'General Liability Insurance', 'Tax Expense', 'Bank Service Charges', 'Dues and Subscriptions', 'Rent Expense', 'Indirect', 'Travel'],
   'Soil Health Programs': ['Soil Health Buckets/Quilt', 'Soil Health Planner', 'Infiltration kits', 'Soil Health Bucket Procurement', 'Soil Health Buckets', 'Soil Health Promotional', 'Survey'],
-  'Grants & Projects': ['NR206740XXXC012', 'NR196740G002', '8402 SARE Soil Quilt', '8401 Custer Peak Virtual', '8400 Private Foundation/Org Exp', '8200 DANR/319 Grant Expense', 'NR206740 CA C010', '8300 Other Governmental Grant', '8100 Contribution Agreement', 'NFWF', 'Youth'],
-  'Misc/Other': ['Remaining Accounts Payable not matched by keyword or vendor name'],
+  'Grants & Projects': ['NR206740XXXC012', 'NR196740G002', '8402 SARE Soil Quilt', '8401 Custer Peak Virtual', '8400 Private Foundation/Org Exp', 'NR206740 CA C010', '8300 Other Governmental Grant', '8100 Contribution Agreement', 'NFWF', 'Youth'],
+  'Credit Card': ['AP: First National Bank of Omaha (credit card payments)'],
+  'Uncategorized': ['Remaining Accounts Payable businesses & records with no Split Note'],
+}
+
+// Detect if a vendor name looks like an individual person (not a business)
+function looksLikePersonName(lowerName) {
+  // Strip parenthetical content like "(K & E Anderson Family Ranch)"
+  const cleaned = lowerName.replace(/\(.*?\)/g, '').trim()
+  // Remove "and" joining (e.g., "Austin and Baylee Carlson")
+  const words = cleaned.split(/\s+/).filter((w) => w !== 'and' && w !== '&')
+  // Person names are typically 2-4 words with no business indicators
+  if (words.length < 2 || words.length > 4) return false
+  return !BUSINESS_INDICATORS.some((b) => cleaned.includes(b))
 }
 
 export function aggregateVendorCategory(splitNote, memo, vendorName) {
@@ -119,7 +173,13 @@ export function aggregateVendorCategory(splitNote, memo, vendorName) {
 
   // Direct lookup
   const mapped = CATEGORY_LOOKUP.get(splitNote)
-  if (mapped) return mapped
+  if (mapped) {
+    // Contractual individuals → Personnel
+    if (mapped === 'Contractual' && vendorName && looksLikePersonName(vendorName.toLowerCase())) {
+      return 'Personnel'
+    }
+    return mapped
+  }
 
   // -SPLIT- handling: check memo for keywords
   if (splitNote === '-SPLIT-') {
@@ -127,8 +187,8 @@ export function aggregateVendorCategory(splitNote, memo, vendorName) {
       const lower = memo.toLowerCase()
       if (lower.includes('soil health school')) return 'Soil Health School'
       if (lower.includes('intern')) return 'Personnel'
-      if (lower.includes('test plot')) return 'On Farm Trials & Demos'
-      if (lower.includes('cover crop') || lower.includes('cost share')) return 'Soil Health Programs'
+      if (lower.includes('on farm trial') || lower.includes('cover crop') || lower.includes('cost share') || lower.includes('319') || lower.includes('danr')) return 'Cost-Share'
+      if (lower.includes('test plot') || lower.includes('demo')) return 'Information & Education'
     }
     return 'Personnel' // default for -SPLIT- rows
   }
@@ -138,22 +198,35 @@ export function aggregateVendorCategory(splitNote, memo, vendorName) {
     const lowerMemo = (memo || '').toLowerCase()
     const lowerVendor = (vendorName || '').toLowerCase()
 
-    // Memo keyword matching
-    if (lowerMemo.includes('on farm trial') || lowerMemo.includes('test plot')) return 'On Farm Trials & Demos'
-    if (lowerMemo.includes('cover crop') || lowerMemo.includes('cost share')) return 'Soil Health Programs'
+    // Cost-share memo keywords (check first)
+    if (lowerMemo.includes('on farm trial') || lowerMemo.includes('cover crop') || lowerMemo.includes('cost share') || lowerMemo.includes('319') || lowerMemo.includes('danr')) return 'Cost-Share'
+    // I&E memo keywords (test plots, demos, rainfall simulators)
+    if (lowerMemo.includes('test plot') || lowerMemo.includes('demo') || lowerMemo.includes('rainfall simulator')) return 'Information & Education'
     if (lowerMemo.includes('soil health school')) return 'Soil Health School'
     if (lowerMemo.includes('conference') || lowerMemo.includes('convention') || lowerMemo.includes('annual meeting')) return 'Annual Meeting'
-    if (lowerMemo.includes('radio') || lowerMemo.includes('ad ') || lowerMemo.includes('advertising') || lowerMemo.includes('commercial')) return 'Marketing & Outreach'
+    if (lowerMemo.includes('radio') || lowerMemo.includes('advertising') || lowerMemo.includes('commercial')) return 'Marketing & Outreach'
 
+    // Credit card payments
+    if (AP_CREDIT_CARD_VENDORS.some((v) => lowerVendor.includes(v))) return 'Credit Card'
     // Vendor name matching — media/radio/TV companies
     if (AP_MEDIA_VENDORS.some((v) => lowerVendor.includes(v))) return 'Marketing & Outreach'
+    // FCC call-letter stations (K/W + 2-4 letters)
+    if (AP_CALL_LETTER_RE.test(lowerVendor)) return 'Marketing & Outreach'
+    // Newspapers
+    if (AP_NEWSPAPER_VENDORS.some((v) => lowerVendor.includes(v))) return 'Marketing & Outreach'
+    // Marketing/promo vendors
+    if (AP_MARKETING_VENDORS.some((v) => lowerVendor.includes(v))) return 'Marketing & Outreach'
     // Printing companies
     if (AP_PRINTING_VENDORS.some((v) => lowerVendor.includes(v))) return 'Information & Education'
     // Hotels/venues → Annual Meeting
     if (AP_HOTEL_VENDORS.some((v) => lowerVendor.includes(v))) return 'Annual Meeting'
+    // Known personnel/contract orgs
+    if (AP_PERSONNEL_VENDORS.some((v) => lowerVendor.includes(v))) return 'Personnel'
+    // Individual people (no business indicators in name) → Personnel
+    if (looksLikePersonName(lowerVendor)) return 'Personnel'
 
-    // Default remaining AP to Misc/Other
-    return 'Misc/Other'
+    // Default remaining AP to Uncategorized
+    return 'Uncategorized'
   }
 
   return 'Uncategorized'
