@@ -5,9 +5,9 @@ import {
 import { legendStyle, CustomTooltipContent, currencyFormatter } from './chartConfig'
 
 const SOURCE_COLORS = {
-  total319: '#4CA5C2',
-  totalOther: '#7B68AE',
-  totalLocal: '#5CAB7D',
+  total319: '#9370DB',
+  totalOther: '#FF69B4',
+  totalLocal: '#4CA5C2',
 }
 
 const SOURCE_LABELS = {

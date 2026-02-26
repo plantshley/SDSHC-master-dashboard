@@ -50,12 +50,15 @@
 /* Funding section header */
 .costshare-section-header {
   font-family: var(--font-heading);
-  font-size: 16px;
+  font-size: 25px;
   font-weight: 600;
   color: var(--accent);
-  margin: 8px 0 -4px 0;
+  margin: 20px 0 0px 0;
   padding-bottom: 6px;
   border-bottom: 2px solid var(--accent-bg);
+  letter-spacing: 0.5px;
+  text-align: center;
+  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 

@@ -183,7 +183,10 @@ export default function VendorDashboard() {
     if (!filteredRows) return
     const exportRows = filteredRows.map((r) => ({
       'Person ID': r.personId,
+      'QB Transaction ID': r.qbTransactionId,
       'Full Name': r.fullName,
+      'First Name': r.firstName,
+      'Last Name': r.lastName,
       'Amount': r.amount,
       'Payment Date': formatDateForExport(r.paymentDate),
       'Payment Year': r.paymentYear,
@@ -191,7 +194,11 @@ export default function VendorDashboard() {
       'Payment Type': r.paymentType,
       'Split Note': r.splitNote,
       'Memo': r.memo,
+      'Lifetime Vending Total': r.lifetimeVendingTotal,
+      'Last Vend Year': r.lastVendYear,
       'Transaction Source': r.transactionSource,
+      'Record URL': r.recordUrl,
+      'Vendor URL': r.vendorUrl,
     }))
     exportTableData(exportRows, 'vendor-transactions')
   }, [filteredRows])

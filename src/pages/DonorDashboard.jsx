@@ -174,7 +174,11 @@ export default function DonorDashboard() {
     const exportRows = filteredRows.map((r) => ({
       'Person ID': r.personId,
       'Full Name': r.fullName,
+      'First Name': r.firstName,
+      'Last Name': r.lastName,
       'Membership Status': r.membershipStatus,
+      'Last Membership Year': r.lastMembershipYear,
+      'Lifetime Gift Amount': r.lifetimeGiftAmount,
       'Gift Date': formatDateForExport(r.giftDate),
       'Gift Year': r.giftYear,
       'Gift Amount': r.giftAmount,
@@ -183,6 +187,8 @@ export default function DonorDashboard() {
       'Description': r.description,
       'Gift Month': r.giftMonth,
       'Transaction Source': r.transactionSource,
+      'Record URL': r.recordUrl,
+      'Donor URL': r.donorUrl,
     }))
     exportTableData(exportRows, 'donor-transactions')
   }, [filteredRows])

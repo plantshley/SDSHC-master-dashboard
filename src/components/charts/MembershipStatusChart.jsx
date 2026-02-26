@@ -59,8 +59,13 @@ function CustomPieTooltip({ active, payload, tooltipLabel, valueFormatter }) {
   )
 }
 
-export default function MembershipStatusChart({ data, tooltipLabel = 'donors', valueFormatter }) {
+export default function MembershipStatusChart({ data, tooltipLabel = 'donors', valueFormatter, colorMap }) {
   if (!data || data.length === 0) return <div className="chart-empty">No data</div>
+
+  const getColor = (entry, index) => {
+    if (colorMap && colorMap[entry.status]) return colorMap[entry.status]
+    return CHART_COLORS[index % CHART_COLORS.length]
+  }
 
   return (
     <ResponsiveContainer width="100%" height={320}>
@@ -81,7 +86,7 @@ export default function MembershipStatusChart({ data, tooltipLabel = 'donors', v
           {data.map((entry, index) => (
             <Cell
               key={`cell-${entry.status}`}
-              fill={CHART_COLORS[index % CHART_COLORS.length]}
+              fill={getColor(entry, index)}
             />
           ))}
         </Pie>
