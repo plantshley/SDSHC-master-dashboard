@@ -49,12 +49,12 @@ export default function DualAxisTimelineChart({
   if (!data || data.length === 0) return <div className="chart-empty">No data</div>
 
   return (
-    <ResponsiveContainer width="100%" height={320}>
+    <ResponsiveContainer width="100%" height={420}>
       <ComposedChart data={data} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
         <XAxis
           dataKey="year"
-          tick={{ fontSize: 11, fontFamily: 'JetBrains Mono' }}
+          tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
         />
         <YAxis
@@ -63,7 +63,7 @@ export default function DualAxisTimelineChart({
           tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
           width={50}
-          label={{ value: leftLabel, angle: -90, position: 'insideLeft', fontSize: 10, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
+          label={{ value: leftLabel, angle: -90, position: 'insideLeft', fontSize: 12, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
         />
         <YAxis
           yAxisId="right"
@@ -72,7 +72,7 @@ export default function DualAxisTimelineChart({
           tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
           width={60}
-          label={{ value: rightLabel, angle: 90, position: 'insideRight', dx: 15, fontSize: 10, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
+          label={{ value: rightLabel, angle: 90, position: 'insideRight', dx: 15, fontSize: 12, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
         />
         <Tooltip
           content={

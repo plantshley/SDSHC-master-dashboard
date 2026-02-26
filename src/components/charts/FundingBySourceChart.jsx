@@ -6,7 +6,7 @@ import { legendStyle, currencyFormatter } from './chartConfig'
 
 const COLORS = {
   allocated: '#4CA5C2',
-  used: '#D4915E',
+  used: '#EE82EE',
 }
 
 function SourceTooltip({ active, payload }) {

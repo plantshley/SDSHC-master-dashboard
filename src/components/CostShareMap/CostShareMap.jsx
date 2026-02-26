@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import './CostShareMap.css'
 
@@ -12,8 +12,8 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-const SD_CENTER = [44.3, -99.5]
-const SD_ZOOM = 7
+const SD_CENTER = [44.0, -100.0]
+const SD_ZOOM = 6
 
 function getFundingColor(amount) {
   if (amount > 50000) return '#1A6B82'
@@ -31,6 +31,19 @@ function formatCurrency(val) {
     style: 'currency', currency: 'USD',
     minimumFractionDigits: 0, maximumFractionDigits: 0,
   }).format(val)
+}
+
+function ResetViewButton() {
+  const map = useMap()
+  return (
+    <button
+      className="map-reset-btn"
+      title="Reset view"
+      onClick={() => map.setView(SD_CENTER, SD_ZOOM)}
+    >
+      &#8962;
+    </button>
+  )
 }
 
 export default function CostShareMap({ data }) {
@@ -85,6 +98,7 @@ export default function CostShareMap({ data }) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <ResetViewButton />
         {farms.map((farm, i) => (
           <CircleMarker
             key={i}

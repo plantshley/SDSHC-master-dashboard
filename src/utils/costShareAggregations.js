@@ -135,11 +135,13 @@ export function computeEnvironmentalImpact(rows) {
   rows.forEach((r) => {
     if (!r.bmp) return
     if (!bmpMap[r.bmp]) {
-      bmpMap[r.bmp] = { bmp: r.bmp, nitrogen: 0, phosphorus: 0, sediment: 0 }
+      bmpMap[r.bmp] = { bmp: r.bmp, nitrogen: 0, phosphorus: 0, sediment: 0, acres: 0, count: 0 }
     }
     bmpMap[r.bmp].nitrogen += r.nCombined
     bmpMap[r.bmp].phosphorus += r.pCombined
     bmpMap[r.bmp].sediment += r.sCombined
+    bmpMap[r.bmp].acres += r.practiceAcres
+    bmpMap[r.bmp].count += 1
   })
 
   const byBMP = Object.values(bmpMap)
@@ -148,6 +150,7 @@ export function computeEnvironmentalImpact(rows) {
       nitrogen: Math.round(b.nitrogen),
       phosphorus: Math.round(b.phosphorus),
       sediment: Math.round(b.sediment),
+      acres: Math.round(b.acres),
     }))
     .sort((a, b) => b.nitrogen - a.nitrogen)
     .slice(0, 8)
@@ -190,7 +193,10 @@ export function computeAllFarms(rows) {
         totalFunding: 0,
         contractCount: 0,
         totalAcres: 0,
-        lastPracticeYear: 0,
+        lastProjectYear: 0,
+        totalN: 0,
+        totalP: 0,
+        totalS: 0,
         bmpBreakdown: {},
         lifetimeCostshareTotal: r.lifetimeCostshareTotal || 0,
         recordUrl: r.recordUrl || null,
@@ -203,9 +209,12 @@ export function computeAllFarms(rows) {
     const farm = farmMap[r.personId]
     farm.totalFunding += r.totalAmount
     farm.totalAcres += r.practiceAcres
+    farm.totalN += r.nCombined
+    farm.totalP += r.pCombined
+    farm.totalS += r.sCombined
     if (r.contractId) farm.contracts.add(r.contractId)
-    if (r.projectYear > farm.lastPracticeYear) {
-      farm.lastPracticeYear = r.projectYear
+    if (r.projectYear > farm.lastProjectYear) {
+      farm.lastProjectYear = r.projectYear
     }
     if (r.bmp) {
       if (!farm.bmpBreakdown[r.bmp]) {
@@ -227,11 +236,14 @@ export function computeAllFarms(rows) {
       contractCount: f.contracts.size,
       contracts: undefined,
       totalAcres: Math.round(f.totalAcres),
+      totalN: Math.round(f.totalN),
+      totalP: Math.round(f.totalP),
+      totalS: Math.round(f.totalS),
     }))
     .sort((a, b) => b.totalFunding - a.totalFunding)
 }
 
-export function computeCostShareInsights(metrics, fundingByYearData, bmpDistribution, rows) {
+export function computeCostShareInsights(metrics, fundingByYearData, bmpDistribution, fundingBySource) {
   const insights = []
 
   if (metrics) {
@@ -252,7 +264,7 @@ export function computeCostShareInsights(metrics, fundingByYearData, bmpDistribu
     if (metrics.nitrogenReduction > 0) {
       insights.push({
         type: 'positive',
-        text: `Environmental impact: ${formatInsightNumber(metrics.nitrogenReduction)} lbs nitrogen, ${formatInsightNumber(metrics.phosphorusReduction)} lbs phosphorus, and ${formatInsightNumber(metrics.sedimentReduction)} tons sediment reduced (combined).`,
+        text: `Environmental impact: ${formatInsightNumber(metrics.nitrogenReduction)} lbs nitrogen, ${formatInsightNumber(metrics.phosphorusReduction)} lbs phosphorus, and ${formatInsightNumber(metrics.sedimentReduction)} lbs sediment reduced (combined).`,
       })
     }
   }
@@ -265,13 +277,19 @@ export function computeCostShareInsights(metrics, fundingByYearData, bmpDistribu
     })
   }
 
-  // Top farm by funding
-  const farms = computeAllFarms(rows)
-  if (farms.length > 0) {
-    insights.push({
-      type: 'info',
-      text: `Top recipient: ${farms[0].fullName} (${farms[0].farmName || 'unnamed farm'}) with ${formatInsightCurrency(farms[0].totalFunding)} in cost-share funding.`,
-    })
+  // Funding utilization insight — find lowest utilized source
+  if (fundingBySource && fundingBySource.length > 0) {
+    const withBudget = fundingBySource.filter((s) => s.allocated > 0)
+    if (withBudget.length > 0) {
+      const lowest = withBudget.reduce((min, s) => s.utilizationPct < min.utilizationPct ? s : min, withBudget[0])
+      const available = lowest.allocated - lowest.used
+      if (available > 0) {
+        insights.push({
+          type: 'info',
+          text: `Budget opportunity: "${lowest.name}" has ${formatInsightCurrency(available)} available (${lowest.utilizationPct.toFixed(0)}% utilized) — room for additional cost-share allocations.`,
+        })
+      }
+    }
   }
 
   return insights

@@ -13,7 +13,7 @@ export default function GivingOverTimeChart({ data, giftTypes, selectedType, bar
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
         <XAxis
           dataKey="year"
-          tick={{ fontSize: 11, fontFamily: 'JetBrains Mono' }}
+          tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
         />
         <YAxis

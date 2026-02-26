@@ -69,15 +69,28 @@ export default function useCostShareData(filters = {}) {
   const environmentalImpact = useMemo(() => computeEnvironmentalImpact(filteredRows), [filteredRows])
   const timeline = useMemo(() => computeTimeline(filteredRows), [filteredRows])
   const allFarms = useMemo(() => computeAllFarms(filteredRows), [filteredRows])
-  const insights = useMemo(
-    () => metrics ? computeCostShareInsights(metrics, fundingByYear.data, bmpDistribution, filteredRows) : [],
-    [metrics, fundingByYear, bmpDistribution, filteredRows]
-  )
 
-  // Funding CSV aggregations (not affected by cost-share history filters)
-  const budgetBySegment = useMemo(() => computeBudgetBySegment(fundingCSV), [fundingCSV])
-  const fundingBySource = useMemo(() => computeFundingBySource(fundingCSV), [fundingCSV])
-  const budgetByBMPType = useMemo(() => computeBudgetByBMPType(fundingCSV), [fundingCSV])
+  // Filter funding CSV by active segment/BMP filters
+  const filteredFundingCSV = useMemo(() => {
+    let rows = fundingCSV
+    if (filters.segments && filters.segments.length > 0) {
+      rows = rows.filter((r) => filters.segments.includes(r.segment))
+    }
+    if (filters.bmps && filters.bmps.length > 0) {
+      rows = rows.filter((r) => filters.bmps.includes(r.bmp))
+    }
+    return rows
+  }, [fundingCSV, filters.segments, filters.bmps])
+
+  // Funding CSV aggregations (filtered by segment/BMP)
+  const budgetBySegment = useMemo(() => computeBudgetBySegment(filteredFundingCSV), [filteredFundingCSV])
+  const fundingBySource = useMemo(() => computeFundingBySource(filteredFundingCSV), [filteredFundingCSV])
+  const budgetByBMPType = useMemo(() => computeBudgetByBMPType(filteredFundingCSV), [filteredFundingCSV])
+
+  const insights = useMemo(
+    () => metrics ? computeCostShareInsights(metrics, fundingByYear.data, bmpDistribution, fundingBySource) : [],
+    [metrics, fundingByYear, bmpDistribution, fundingBySource]
+  )
 
   // Map data — only rows with valid coordinates in SD bounding box
   const mapData = useMemo(() => {

@@ -27,7 +27,7 @@ function BMPTooltip({ active, payload }) {
   )
 }
 
-export default function BMPDistributionChart({ data, maxItems = 10 }) {
+export default function BMPDistributionChart({ data, maxItems = 15 }) {
   if (!data || data.length === 0) return <div className="chart-empty">No data</div>
 
   const chartData = data.slice(0, maxItems).map((d, i) => ({
@@ -49,6 +49,7 @@ export default function BMPDistributionChart({ data, maxItems = 10 }) {
           type="number"
           tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
+          label={{ value: 'Number of Contracts', position: 'insideBottom', offset: -2, fontSize: 12, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
         />
         <YAxis
           dataKey="shortBmp"

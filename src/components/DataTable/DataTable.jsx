@@ -54,6 +54,10 @@ function CellContent({ col, row }) {
     return formatCurrencyFull(value)
   }
 
+  if (col.format === 'number') {
+    return typeof value === 'number' ? value.toLocaleString() : (value ?? '—')
+  }
+
   return value ?? '—'
 }
 

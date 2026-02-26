@@ -19,7 +19,7 @@ export default function EngagementMatrixChart({ data }) {
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
         <XAxis
           dataKey="role"
-          tick={{ fontSize: 11, fontFamily: 'JetBrains Mono' }}
+          tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
         />
         <YAxis

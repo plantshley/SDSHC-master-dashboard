@@ -11,7 +11,12 @@ export function computeBudgetBySegment(fundingRows) {
     segMap[r.segment].available += r.amountAvailable
   })
 
-  return Object.values(segMap).sort((a, b) => a.segment.localeCompare(b.segment))
+  return Object.values(segMap)
+    .map((s) => ({
+      ...s,
+      utilizationPct: s.allocated > 0 ? (s.used / s.allocated) * 100 : 0,
+    }))
+    .sort((a, b) => a.segment.localeCompare(b.segment))
 }
 
 export function computeFundingBySource(fundingRows) {

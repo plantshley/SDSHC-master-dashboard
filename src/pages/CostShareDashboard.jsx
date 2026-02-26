@@ -23,22 +23,39 @@ const COSTSHARE_COLUMNS = [
   { key: 'fullName', label: 'Producer', render: 'donorLink', className: 'wrap-cell' },
   { key: 'farmName', label: 'Farm Name' },
   { key: 'totalFunding', label: 'Total Funding', format: 'currency', align: 'right' },
-  { key: 'contractCount', label: 'Contracts', align: 'right' },
-  { key: 'totalAcres', label: 'Acres', align: 'right' },
-  { key: 'lastPracticeYear', label: 'Last Practice', align: 'right' },
-  { key: 'costShareUrl', label: 'Cost-Share', render: 'historyLink' },
-  { key: 'recordUrl', label: 'Record', render: 'externalLink' },
+  { key: 'totalAcres', label: 'Total Acres', align: 'right' },
+  { key: 'lastProjectYear', label: 'Last Project Year', align: 'right' },
+  { key: 'totalN', label: 'N (lbs)', align: 'right', format: 'number' },
+  { key: 'totalP', label: 'P (lbs)', align: 'right', format: 'number' },
+  { key: 'totalS', label: 'S (lbs)', align: 'right', format: 'number' },
+  { key: 'contractCount', label: 'Total Contracts', align: 'right' },
+  { key: 'costShareUrl', label: 'History', render: 'historyLink' },
 ]
 
-function BMPTable({ data }) {
-  if (!data || data.length === 0) return null
+function BMPByYearTable({ rows }) {
+  if (!rows || rows.length === 0) return null
 
-  const top5 = data.slice(0, 5)
-  const grandTotal = {
-    count: data.reduce((s, d) => s + d.count, 0),
-    acres: data.reduce((s, d) => s + d.totalAcres, 0),
-    funding: data.reduce((s, d) => s + d.totalFunding, 0),
-  }
+  // Group by year, find top 3 BMPs per year
+  const yearMap = {}
+  rows.forEach((r) => {
+    if (!r.projectYear || !r.bmp) return
+    const y = r.projectYear
+    if (!yearMap[y]) yearMap[y] = {}
+    if (!yearMap[y][r.bmp]) yearMap[y][r.bmp] = { count: 0, acres: 0, funding: 0 }
+    yearMap[y][r.bmp].count += 1
+    yearMap[y][r.bmp].acres += r.practiceAcres
+    yearMap[y][r.bmp].funding += r.totalAmount
+  })
+
+  const yearData = Object.keys(yearMap)
+    .map(Number)
+    .sort((a, b) => b - a)
+    .map((year) => {
+      const bmps = Object.entries(yearMap[year])
+        .map(([bmp, stats]) => ({ bmp, ...stats }))
+        .sort((a, b) => b.count - a.count)
+      return { year, topBmps: bmps.slice(0, 3) }
+    })
 
   return (
     <div className="bmp-totals">
@@ -46,30 +63,30 @@ function BMPTable({ data }) {
         <table className="bmp-totals-table">
           <thead>
             <tr>
-              <th>Practice</th>
+              <th>Year</th>
+              <th>Top BMPs</th>
               <th className="text-right">Contracts</th>
               <th className="text-right">Acres</th>
               <th className="text-right">Funding</th>
             </tr>
           </thead>
           <tbody>
-            {top5.map((bmp, i) => (
-              <tr key={bmp.bmp}>
-                <td className="bmp-name-cell">
-                  <span className="bmp-dot" style={{ background: CHART_COLORS[i % CHART_COLORS.length] }} />
-                  {bmp.bmp}
-                </td>
-                <td className="text-right">{bmp.count}</td>
-                <td className="text-right">{formatNumber(bmp.totalAcres)}</td>
-                <td className="text-right">{formatCurrency(bmp.totalFunding)}</td>
-              </tr>
-            ))}
-            <tr className="bmp-total-row">
-              <td>Total ({data.length} practices)</td>
-              <td className="text-right">{grandTotal.count}</td>
-              <td className="text-right">{formatNumber(grandTotal.acres)}</td>
-              <td className="text-right">{formatCurrency(grandTotal.funding)}</td>
-            </tr>
+            {yearData.map((d) =>
+              d.topBmps.map((bmp, j) => (
+                <tr key={`${d.year}-${j}`} className={j === 0 ? 'bmp-year-first' : ''}>
+                  {j === 0 && (
+                    <td rowSpan={d.topBmps.length}><strong>{d.year}</strong></td>
+                  )}
+                  <td className="bmp-name-cell">
+                    <span className="bmp-dot" style={{ background: CHART_COLORS[j % CHART_COLORS.length] }} />
+                    {bmp.bmp}
+                  </td>
+                  <td className="text-right">{bmp.count}</td>
+                  <td className="text-right">{formatNumber(Math.round(bmp.acres))}</td>
+                  <td className="text-right">{formatCurrency(bmp.funding)}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -245,7 +262,7 @@ export default function CostShareDashboard() {
           <MetricCard label="Acres Impacted" value={formatNumber(metrics.totalAcres)} />
           <MetricCard label="N Reduction" value={`${formatNumber(metrics.nitrogenReduction)} lbs`} />
           <MetricCard label="P Reduction" value={`${formatNumber(metrics.phosphorusReduction)} lbs`} />
-          <MetricCard label="S Reduction" value={`${formatNumber(metrics.sedimentReduction)} tons`} />
+          <MetricCard label="S Reduction" value={`${formatNumber(metrics.sedimentReduction)} lbs`} />
         </div>
 
         {/* Key Highlights */}
@@ -254,68 +271,68 @@ export default function CostShareDashboard() {
             <InsightsCard insights={insights} />
           </BentoCard>
         </BentoGrid>
-
-        {/* Charts Section 1: Cost-Share History */}
-        <BentoGrid>
-          <BentoCard title="Funding Over Time" colSpan={3}>
-            <FundingOverTimeChart data={fundingByYear.data} />
-          </BentoCard>
-
-          <BentoCard title="Funding Source Breakdown">
-            <MembershipStatusChart data={fundingSourceBreakdown} tooltipLabel="funding" />
-          </BentoCard>
-
-          <BentoCard title="Top BMP Practices">
-            <BMPTable data={bmpDistribution} />
-          </BentoCard>
-
-          <BentoCard title="BMP Distribution (Top 10)" colSpan={3}>
-            <BMPDistributionChart data={bmpDistribution} />
-          </BentoCard>
-
-          <BentoCard title="Environmental Impact by Practice" colSpan={2}>
-            <EnvironmentalImpactChart data={environmentalImpact} />
-          </BentoCard>
-
-          <BentoCard title="Contracts & Acres Over Time" colSpan={2}>
-            <DualAxisTimelineChart
-              data={timeline}
-              leftKey="contractCount"
-              leftLabel="Contracts"
-              leftColor="#4CA5C2"
-              rightKey="totalAcres"
-              rightLabel="Acres"
-              rightColor="#D4915E"
-            />
-          </BentoCard>
-        </BentoGrid>
-
-        {/* Funding Analysis Section */}
-        {budgetBySegment.length > 0 && (
-          <>
-            <h2 className="costshare-section-header">Funding Analysis & Budget Tracking</h2>
-            <BentoGrid>
-              <BentoCard title="Budget Overview by Segment" colSpan={2}>
-                <BudgetOverviewChart data={budgetBySegment} />
-              </BentoCard>
-
-              <BentoCard title="Funding by Source" colSpan={2}>
-                <FundingBySourceChart data={fundingBySource} />
-              </BentoCard>
-
-              <BentoCard title="Budget Utilization by Practice Type" colSpan={4}>
-                <FundingBySourceChart data={budgetByBMPType} />
-              </BentoCard>
-            </BentoGrid>
-          </>
-        )}
       </div>{/* end capture area */}
 
-      {/* Map (outside capture area — Leaflet tiles don't export via html2canvas) */}
+      {/* Map + Timeline (outside capture area — Leaflet tiles don't export via html2canvas) */}
       <BentoGrid>
-        <BentoCard title="Farm Locations" colSpan={4}>
+        <BentoCard title="Farm Locations" colSpan={2}>
           <CostShareMap data={mapData} />
         </BentoCard>
+
+        <BentoCard title="Contracts & Acres Over Time" colSpan={2}>
+          <DualAxisTimelineChart
+            data={timeline}
+            leftKey="contractCount"
+            leftLabel="Contracts"
+            leftColor="#4CA5C2"
+            rightKey="totalAcres"
+            rightLabel="Acres"
+            rightColor="#9370DB"
+          />
+        </BentoCard>
+      </BentoGrid>
+
+      {/* Charts Section 1: Cost-Share History */}
+      <BentoGrid>
+        <BentoCard title="Top BMPs by Year">
+          <BMPByYearTable rows={filteredRows} />
+        </BentoCard>
+
+        <BentoCard title="BMP Distribution" colSpan={3}>
+          <BMPDistributionChart data={bmpDistribution} />
+        </BentoCard>
+
+        <BentoCard title="Environmental Impact by Practice" colSpan={4}>
+          <EnvironmentalImpactChart data={environmentalImpact} />
+        </BentoCard>
+      </BentoGrid>
+
+      {/* Funding Analysis Section */}
+      <h2 className="costshare-section-header">Funding Analysis & Budget Tracking</h2>
+      <BentoGrid>
+        <BentoCard title="Funding Over Time" colSpan={3}>
+          <FundingOverTimeChart data={fundingByYear.data} />
+        </BentoCard>
+
+        <BentoCard title="Funding Source Breakdown">
+          <MembershipStatusChart data={fundingSourceBreakdown} tooltipLabel="funding" valueFormatter={formatCurrency} />
+        </BentoCard>
+
+        {budgetBySegment.length > 0 && (
+          <>
+            <BentoCard title="Budget Overview by Segment" colSpan={2}>
+              <BudgetOverviewChart data={budgetBySegment} />
+            </BentoCard>
+
+            <BentoCard title="Funding by Source" colSpan={2}>
+              <FundingBySourceChart data={fundingBySource} />
+            </BentoCard>
+
+            <BentoCard title="Budget Utilization by Practice Type" colSpan={4}>
+              <FundingBySourceChart data={budgetByBMPType} />
+            </BentoCard>
+          </>
+        )}
       </BentoGrid>
 
       {/* Data Table */}

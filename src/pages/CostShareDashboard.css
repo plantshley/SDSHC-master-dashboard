@@ -143,6 +143,62 @@
   color: white;
 }
 
+/* Cost-share table column adjustments */
+.costshare-dashboard .data-table th {
+  white-space: normal;
+  line-height: 1.3;
+  min-width: 50px;
+}
+
+/* Producer column — wider */
+.costshare-dashboard .data-table td.wrap-cell {
+  max-width: 200px;
+  min-width: 140px;
+}
+
+/* N, P, S columns — keep headers single-line */
+.costshare-dashboard .data-table th:nth-child(7),
+.costshare-dashboard .data-table th:nth-child(8),
+.costshare-dashboard .data-table th:nth-child(9) {
+  white-space: nowrap;
+}
+
+/* Total Acres, Total Contracts — compact */
+.costshare-dashboard .data-table th:nth-child(5),
+.costshare-dashboard .data-table th:nth-child(10) {
+  max-width: 70px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.costshare-dashboard .data-table td:nth-child(5),
+.costshare-dashboard .data-table td:nth-child(10) {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+/* Last Project Year — wider so header wraps to 2 lines max */
+.costshare-dashboard .data-table th:nth-child(6) {
+  min-width: 65px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.costshare-dashboard .data-table td:nth-child(6) {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.bmp-year-first td {
+  border-top: 1px solid var(--border-color);
+}
+
+.bmp-totals-table tr:not(.bmp-year-first) td {
+  border-bottom: none;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
 @media (max-width: 768px) {
   .costshare-metrics-row {
     grid-template-columns: repeat(2, 1fr);

@@ -24,7 +24,7 @@ export default function StateDistributionChart({ data }) {
         <YAxis
           dataKey="name"
           type="category"
-          tick={{ fontSize: 11, fontFamily: 'JetBrains Mono' }}
+          tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
           width={60}
         />

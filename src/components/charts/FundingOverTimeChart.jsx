@@ -25,7 +25,7 @@ export default function FundingOverTimeChart({ data }) {
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
         <XAxis
           dataKey="year"
-          tick={{ fontSize: 11, fontFamily: 'JetBrains Mono' }}
+          tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
         />
         <YAxis
@@ -34,7 +34,7 @@ export default function FundingOverTimeChart({ data }) {
           stroke="var(--text-muted)"
           width={70}
         />
-        <Tooltip content={<CustomTooltipContent valueFormatter={currencyFormatter} />} />
+        <Tooltip content={<CustomTooltipContent valueFormatter={currencyFormatter} />} cursor={{ fill: 'var(--accent-bg)' }} />
         <Legend
           {...legendStyle}
           wrapperStyle={{ ...legendStyle.wrapperStyle, paddingTop: 12 }}

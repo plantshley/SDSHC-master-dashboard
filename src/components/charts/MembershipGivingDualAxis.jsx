@@ -55,7 +55,7 @@ export default function MembershipGivingDualAxis({ data, filterNote }) {
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
         <XAxis
           dataKey="year"
-          tick={{ fontSize: 11, fontFamily: 'JetBrains Mono' }}
+          tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
         />
         <YAxis
@@ -64,7 +64,7 @@ export default function MembershipGivingDualAxis({ data, filterNote }) {
           tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
           width={50}
-          label={{ value: 'Members', angle: -90, position: 'insideLeft', fontSize: 10, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
+          label={{ value: 'Members', angle: -90, position: 'insideLeft', fontSize: 12, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
         />
         <YAxis
           yAxisId="right"
@@ -73,7 +73,7 @@ export default function MembershipGivingDualAxis({ data, filterNote }) {
           tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }}
           stroke="var(--text-muted)"
           width={70}
-          label={{ value: 'Giving ($)', angle: 90, position: 'insideRight', dx: 15, fontSize: 10, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
+          label={{ value: 'Giving ($)', angle: 90, position: 'insideRight', dx: 15, fontSize: 12, fontFamily: 'MuseoModerno', fill: 'var(--text-muted)' }}
         />
         <Tooltip content={<DualAxisTooltip filterNote={filterNote} />} cursor={{ fill: 'var(--accent-bg)' }} />
         <Legend
