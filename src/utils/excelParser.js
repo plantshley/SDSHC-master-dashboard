@@ -10,6 +10,11 @@ const EXPECTED_VENDOR_COLUMNS = [
   'Payment Type', 'Split Note', 'LifetimeVendingTotal'
 ]
 
+const EXPECTED_COSTSHARE_COLUMNS = [
+  'FullName', 'PersonID', 'Farm Name', 'BMP',
+  'Total Amount', 'Practice Acres', 'Project Year'
+]
+
 function normalizeValue(val) {
   if (val === null || val === undefined || val === '') return null
   return val
@@ -44,6 +49,7 @@ export async function fetchAndParseExcel(baseUrl) {
     donorHistory: parseDonorHistory(workbook),
     vendorHistory: parseVendorHistory(workbook),
     masterDatabase: parseMasterDatabase(workbook),
+    costShareHistory: parseCostShareHistory(workbook),
   }
 }
 
@@ -190,5 +196,64 @@ function parseVendorHistory(workbook) {
     modified: parseExcelDate(row['Modified']),
     recordUrl: normalizeValue(row['RecordURL']),
     vendorUrl: normalizeValue(row['VendorURL']),
+  }))
+}
+
+function parseCostShareHistory(workbook) {
+  const sheetName = workbook.SheetNames.find(
+    (name) => name.toLowerCase().includes('cost-share history')
+  )
+
+  if (!sheetName) {
+    console.warn(`"Cost-share History" sheet not found. Available sheets: ${workbook.SheetNames.join(', ')}`)
+    return []
+  }
+
+  const sheet = workbook.Sheets[sheetName]
+  const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: null })
+
+  if (rawRows.length > 0) {
+    const cols = Object.keys(rawRows[0])
+    const missing = EXPECTED_COSTSHARE_COLUMNS.filter(
+      (c) => !cols.some((col) => col.trim() === c)
+    )
+    if (missing.length > 0) {
+      console.warn(`Cost-share History: missing expected columns: ${missing.join(', ')}`)
+    }
+  }
+
+  return rawRows.map((row) => ({
+    id: normalizeValue(row['Id']),
+    personId: normalizeValue(row['PersonID'] || row['Person IDId']),
+    fullName: normalizeValue(row['FullName']),
+    farmName: normalizeValue(row['Farm Name']),
+    lifetimeCostshareTotal: parseNumber(row['LifetimeCostshareTotal']),
+    lifetimeTotalAcres: parseNumber(row['Lifetime Total Acres']),
+    projectYear: parseNumber(row['Project Year']) || null,
+    projectSegment: normalizeValue(row['Project Segment']),
+    paidDate: parseExcelDate(row['Paid Date']),
+    odata319Amount: parseNumber(row['OData_319 Amount']),
+    otherAmount: parseNumber(row['Other Amount']),
+    localAmount: parseNumber(row['Local Amount']),
+    totalAmount: parseNumber(row['Total Amount']),
+    bmp: normalizeValue(row['BMP']),
+    bmpNumber: normalizeValue(row['BMP Number']),
+    bmpId: normalizeValue(row['BMP ID']),
+    practiceAcres: parseNumber(row['Practice Acres']),
+    practiceDate: parseExcelDate(row['Practice Date']),
+    nReductions: parseNumber(row['N Reductions']),
+    pReductions: parseNumber(row['P Reductions']),
+    sReductions: parseNumber(row['S Reductions']),
+    nCombined: parseNumber(row['N Combined']),
+    pCombined: parseNumber(row['P Combined']),
+    sCombined: parseNumber(row['S Combined']),
+    lat: parseNumber(row['Lat']) || null,
+    longitude: parseNumber(row['Longitude']) || null,
+    stream: normalizeValue(row['Stream']),
+    contractId: normalizeValue(row['Contract ID']),
+    missingAcres: normalizeValue(row['MissingAcres']),
+    modified: parseExcelDate(row['Modified']),
+    recordUrl: normalizeValue(row['RecordURL']),
+    costShareUrl: normalizeValue(row['CostShareURL']),
   }))
 }

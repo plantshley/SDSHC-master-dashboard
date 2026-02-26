@@ -1,0 +1,153 @@
+.costshare-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.costshare-dashboard .export-capture-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--bg-primary);
+}
+
+.costshare-dashboard-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.costshare-dashboard-title {
+  font-family: var(--font-title);
+  font-size: 24px;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.costshare-dashboard-filter-badge {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--accent-light);
+}
+
+.costshare-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1200px) {
+  .costshare-metrics-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Funding section header */
+.costshare-section-header {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 8px 0 -4px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--accent-bg);
+  letter-spacing: 0.5px;
+}
+
+/* BMP Distribution table */
+.bmp-totals {
+  height: 100%;
+}
+
+.bmp-table-scroll {
+  overflow-x: auto;
+}
+
+.bmp-totals-table {
+  width: 100%;
+  font-size: 11px;
+  border-collapse: collapse;
+}
+
+.bmp-totals-table th {
+  padding: 6px 8px;
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.bmp-totals-table td {
+  padding: 5px 8px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.bmp-totals-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.bmp-name-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bmp-total-row {
+  border-top: 2px solid var(--border-color);
+}
+
+.bmp-total-row td {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.bmp-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.filter-reset-btn {
+  display: inline-block;
+  margin-left: 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-reset-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .costshare-metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .costshare-dashboard-title {
+    font-size: 18px;
+  }
+}

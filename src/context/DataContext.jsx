@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { fetchAndParseExcel } from '../utils/excelParser'
+import { fetchAndParseCSV } from '../utils/csvParser'
 
 const DataContext = createContext(null)
 
@@ -10,9 +11,12 @@ export function DataProvider({ children }) {
 
   useEffect(() => {
     const baseUrl = import.meta.env.BASE_URL
-    fetchAndParseExcel(baseUrl)
-      .then((parsed) => {
-        setData(parsed)
+    Promise.all([
+      fetchAndParseExcel(baseUrl),
+      fetchAndParseCSV(baseUrl, 'cost-share-funding.csv'),
+    ])
+      .then(([parsed, fundingData]) => {
+        setData({ ...parsed, costShareFunding: fundingData })
         setIsLoading(false)
       })
       .catch((err) => {

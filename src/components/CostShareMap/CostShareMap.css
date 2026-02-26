@@ -1,0 +1,77 @@
+.costshare-map-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.costshare-map {
+  height: 400px;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.map-popup {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  min-width: 180px;
+}
+
+.map-popup-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.map-popup-farm {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.map-popup-details div {
+  margin-bottom: 2px;
+}
+
+.map-popup-practices {
+  margin-top: 6px;
+  border-top: 1px solid #eee;
+  padding-top: 4px;
+}
+
+.map-popup-practices ul {
+  margin: 2px 0 0 0;
+  padding-left: 16px;
+  font-size: 11px;
+}
+
+.map-popup-practices li {
+  margin-bottom: 1px;
+}
+
+.map-legend {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.map-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.map-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
