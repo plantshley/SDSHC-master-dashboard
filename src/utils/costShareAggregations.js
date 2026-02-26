@@ -18,10 +18,10 @@ export function computeCostShareMetrics(rows) {
   const uniqueProducers = new Set(rows.map((r) => r.personId).filter(Boolean))
   const contractIds = new Set(rows.map((r) => r.contractId).filter(Boolean))
   const totalFunding = rows.reduce((sum, r) => sum + r.totalAmount, 0)
-  const totalAcres = rows.reduce((sum, r) => sum + r.practiceAcres, 0)
-  const nitrogenReduction = rows.reduce((sum, r) => sum + r.nCombined, 0)
-  const phosphorusReduction = rows.reduce((sum, r) => sum + r.pCombined, 0)
-  const sedimentReduction = rows.reduce((sum, r) => sum + r.sCombined, 0)
+  const totalAcres = Math.round(rows.reduce((sum, r) => sum + r.practiceAcres, 0))
+  const nitrogenReduction = Math.round(rows.reduce((sum, r) => sum + r.nCombined, 0))
+  const phosphorusReduction = Math.round(rows.reduce((sum, r) => sum + r.pCombined, 0))
+  const sedimentReduction = Math.round(rows.reduce((sum, r) => sum + r.sCombined, 0))
 
   // Funding by year for peak/YoY
   const yearMap = {}
@@ -114,18 +114,20 @@ export function computeBMPDistribution(rows) {
     bmpMap[r.bmp].totalFunding += r.totalAmount
   })
 
-  return Object.values(bmpMap).sort((a, b) => b.count - a.count)
+  return Object.values(bmpMap)
+    .map((b) => ({ ...b, totalAcres: Math.round(b.totalAcres) }))
+    .sort((a, b) => b.count - a.count)
 }
 
 export function computeEnvironmentalImpact(rows) {
   // Combined totals (synergistic)
   const totals = {
-    nitrogen: rows.reduce((s, r) => s + r.nReductions, 0),
-    phosphorus: rows.reduce((s, r) => s + r.pReductions, 0),
-    sediment: rows.reduce((s, r) => s + r.sReductions, 0),
-    nCombined: rows.reduce((s, r) => s + r.nCombined, 0),
-    pCombined: rows.reduce((s, r) => s + r.pCombined, 0),
-    sCombined: rows.reduce((s, r) => s + r.sCombined, 0),
+    nitrogen: Math.round(rows.reduce((s, r) => s + r.nReductions, 0)),
+    phosphorus: Math.round(rows.reduce((s, r) => s + r.pReductions, 0)),
+    sediment: Math.round(rows.reduce((s, r) => s + r.sReductions, 0)),
+    nCombined: Math.round(rows.reduce((s, r) => s + r.nCombined, 0)),
+    pCombined: Math.round(rows.reduce((s, r) => s + r.pCombined, 0)),
+    sCombined: Math.round(rows.reduce((s, r) => s + r.sCombined, 0)),
   }
 
   // By BMP - top by nitrogen combined
@@ -141,6 +143,12 @@ export function computeEnvironmentalImpact(rows) {
   })
 
   const byBMP = Object.values(bmpMap)
+    .map((b) => ({
+      ...b,
+      nitrogen: Math.round(b.nitrogen),
+      phosphorus: Math.round(b.phosphorus),
+      sediment: Math.round(b.sediment),
+    }))
     .sort((a, b) => b.nitrogen - a.nitrogen)
     .slice(0, 8)
 

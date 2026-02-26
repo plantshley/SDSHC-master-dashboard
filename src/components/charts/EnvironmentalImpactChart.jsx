@@ -33,7 +33,7 @@ export default function EnvironmentalImpactChart({ data }) {
 
   return (
     <div style={{ width: '100%' }}>
-      <ResponsiveContainer width="100%" height={320}>
+      <ResponsiveContainer width="100%" height={350}>
         <BarChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
           <XAxis
@@ -54,7 +54,7 @@ export default function EnvironmentalImpactChart({ data }) {
           <Tooltip content={<CustomTooltipContent valueFormatter={(v) => `${numberFormatter(v)} lbs`} />} />
           <Legend
             {...legendStyle}
-            wrapperStyle={{ ...legendStyle.wrapperStyle, paddingTop: 4 }}
+            wrapperStyle={{ ...legendStyle.wrapperStyle, paddingTop: 10 }}
           />
           <Bar dataKey="Nitrogen" fill={COLORS.nitrogen} radius={[4, 4, 0, 0]} />
           <Bar dataKey="Phosphorus" fill={COLORS.phosphorus} radius={[4, 4, 0, 0]} />
@@ -66,7 +66,7 @@ export default function EnvironmentalImpactChart({ data }) {
         fontFamily: "'JetBrains Mono', monospace",
         color: 'var(--text-muted)',
         textAlign: 'center',
-        marginTop: 4,
+        marginTop: 10,
       }}>
         "Combined" reflects synergistic reductions from multiple practices on the same land
       </div>

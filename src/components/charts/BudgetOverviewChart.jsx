@@ -14,7 +14,7 @@ export default function BudgetOverviewChart({ data }) {
   if (!data || data.length === 0) return <div className="chart-empty">No data</div>
 
   return (
-    <ResponsiveContainer width="100%" height={320}>
+    <ResponsiveContainer width="100%" height={480}>
       <BarChart data={data} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
         <XAxis
