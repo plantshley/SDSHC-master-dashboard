@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useMemo } from 'react'
+import { usePersistedFilters } from '../context/FilterContext'
 import useVendorData from '../hooks/useVendorData'
 import { formatCurrency, formatCurrencyFull, formatNumber, formatPercent } from '../utils/formatters'
 import { CHART_COLORS } from '../theme/themeConfig'
@@ -118,7 +119,7 @@ function CategoryByYearTable({ data, categories }) {
 }
 
 export default function VendorDashboard() {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = usePersistedFilters('vendor', {
     yearStart: null,
     yearEnd: null,
     paymentTypes: [],

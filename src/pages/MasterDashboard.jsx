@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import { usePersistedFilters } from '../context/FilterContext'
 import useMasterData from '../hooks/useMasterData'
 import { formatCurrency, formatNumber } from '../utils/formatters'
 import { exportAsImage, exportChartDataExcel, exportTableData, formatDateForExport } from '../utils/exportUtils'
@@ -35,7 +36,7 @@ const EMPTY_FILTERS = {
 }
 
 export default function MasterDashboard() {
-  const [filters, setFilters] = useState(EMPTY_FILTERS)
+  const [filters, setFilters] = usePersistedFilters('master', EMPTY_FILTERS)
   const [selectedPerson, setSelectedPerson] = useState(null)
   const chartsRef = useRef(null)
 

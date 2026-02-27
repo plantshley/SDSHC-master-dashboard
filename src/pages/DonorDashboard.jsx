@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import { usePersistedFilters } from '../context/FilterContext'
 import useDonorData from '../hooks/useDonorData'
 import { formatCurrency, formatCurrencyFull, formatNumber, formatPercent } from '../utils/formatters'
 import { CHART_COLORS } from '../theme/themeConfig'
@@ -121,7 +122,7 @@ function GiftTypeByYearTable({ data, giftTypes }) {
 }
 
 export default function DonorDashboard() {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = usePersistedFilters('donor', {
     yearStart: null,
     yearEnd: null,
     giftTypes: [],

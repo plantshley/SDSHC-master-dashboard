@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback } from 'react'
+import { useRef, useCallback } from 'react'
+import { usePersistedFilters } from '../context/FilterContext'
 import useCostShareData from '../hooks/useCostShareData'
 import { formatCurrency, formatNumber, formatPercent } from '../utils/formatters'
 import { CHART_COLORS } from '../theme/themeConfig'
@@ -95,7 +96,7 @@ function BMPByYearTable({ rows }) {
 }
 
 export default function CostShareDashboard() {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = usePersistedFilters('costshare', {
     yearStart: null,
     yearEnd: null,
     bmps: [],

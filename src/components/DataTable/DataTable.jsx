@@ -103,16 +103,18 @@ export default function DataTable({ data, columns, onRowClick, searchPlaceholder
     }
   }
 
-  const toggleExpand = (personId) => {
-    setExpandedRow((prev) => (prev === personId ? null : personId))
+  const getRowKey = (row, index) => row.id ?? row.personId ?? index
+
+  const toggleExpand = (rowKey) => {
+    setExpandedRow((prev) => (prev === rowKey ? null : rowKey))
   }
 
-  const handleRowClick = (row) => {
+  const handleRowClick = (row, index) => {
     if (onRowClick) {
       onRowClick(row)
     } else {
       const hasBreakdown = row[breakdownKey] && Object.keys(row[breakdownKey]).length > 0
-      if (hasBreakdown) toggleExpand(row.personId)
+      if (hasBreakdown) toggleExpand(getRowKey(row, index))
     }
   }
 
@@ -152,14 +154,15 @@ export default function DataTable({ data, columns, onRowClick, searchPlaceholder
           </thead>
           <tbody>
             {sorted.map((row, i) => {
-              const isExpanded = expandedRow === row.personId
+              const rowKey = getRowKey(row, i)
+              const isExpanded = expandedRow === rowKey
               const hasBreakdown = !onRowClick && row[breakdownKey] && Object.keys(row[breakdownKey]).length > 0
               const isClickable = onRowClick || hasBreakdown
               return (
-                <Fragment key={row.personId || i}>
+                <Fragment key={rowKey}>
                   <tr
                     className={`${isClickable ? 'expandable-row' : ''} ${isExpanded ? 'expanded' : ''}`}
-                    onClick={() => handleRowClick(row)}
+                    onClick={() => handleRowClick(row, i)}
                   >
                     <td className="data-table-rank">{i + 1}</td>
                     {columns.map((col) => (
