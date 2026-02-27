@@ -266,6 +266,8 @@ export default function CostShareDashboard() {
 
       <FilterBar filters={filters} onFilterChange={setFilters} fields={costShareFilterFields} clearFilters={clearFilters} exportHandlers={exportHandlers} />
 
+      {/* Capture area for image export (metrics + insights + map + charts, excludes table) */}
+      <div ref={chartsRef} className="export-capture-area">
       {/* Key Metrics */}
       <div className="costshare-metrics-row">
         <MetricCard label="Total Farms" value={formatNumber(metrics.totalFarms)} subtitle={`${metrics.totalProducers} producers`} />
@@ -283,7 +285,7 @@ export default function CostShareDashboard() {
         </BentoCard>
       </BentoGrid>
 
-      {/* Map + Timeline (outside capture area — Leaflet tiles don't export via html2canvas) */}
+      {/* Map + Timeline */}
       <BentoGrid>
         <BentoCard title="Farm Locations" colSpan={2}>
           <CostShareMap data={mapData} />
@@ -302,50 +304,48 @@ export default function CostShareDashboard() {
         </BentoCard>
       </BentoGrid>
 
-      {/* Capture area for image export (charts only, excludes map and table) */}
-      <div ref={chartsRef} className="export-capture-area">
-        {/* Charts Section 1: Cost-Share History */}
-        <BentoGrid>
-          <BentoCard title="Top BMPs by Year">
-            <BMPByYearTable rows={filteredRows} />
-          </BentoCard>
+      {/* Charts Section 1: Cost-Share History */}
+      <BentoGrid>
+        <BentoCard title="Top BMPs by Year">
+          <BMPByYearTable rows={filteredRows} />
+        </BentoCard>
 
-          <BentoCard title="BMP Distribution" colSpan={3}>
-            <BMPDistributionChart data={bmpDistribution} />
-          </BentoCard>
+        <BentoCard title="BMP Distribution" colSpan={3}>
+          <BMPDistributionChart data={bmpDistribution} />
+        </BentoCard>
 
-          <BentoCard title="Environmental Impact by Practice" colSpan={4}>
-            <EnvironmentalImpactChart data={environmentalImpact} />
-          </BentoCard>
-        </BentoGrid>
+        <BentoCard title="Environmental Impact by Practice" colSpan={4}>
+          <EnvironmentalImpactChart data={environmentalImpact} />
+        </BentoCard>
+      </BentoGrid>
 
-        {/* Funding Analysis Section */}
-        <h2 className="costshare-section-header">Funding Analysis & Budget Tracking</h2>
-        <BentoGrid>
-          <BentoCard title="Funding Over Time" colSpan={3}>
-            <FundingOverTimeChart data={fundingByYear.data} />
-          </BentoCard>
+      {/* Funding Analysis Section */}
+      <h2 className="costshare-section-header">Funding Analysis & Budget Tracking</h2>
+      <BentoGrid>
+        <BentoCard title="Funding Over Time" colSpan={3}>
+          <FundingOverTimeChart data={fundingByYear.data} />
+        </BentoCard>
 
-          <BentoCard title="Funding Source Breakdown">
-            <MembershipStatusChart data={fundingSourceBreakdown} tooltipLabel="funding" valueFormatter={formatCurrency} colorMap={{ '319 Funds': '#9370DB', 'Other': '#FF69B4', 'Local': '#4CA5C2' }} />
-          </BentoCard>
+        <BentoCard title="Funding Source Breakdown">
+          <MembershipStatusChart data={fundingSourceBreakdown} tooltipLabel="funding" valueFormatter={formatCurrency} colorMap={{ '319 Funds': '#9370DB', 'Other': '#FF69B4', 'Local': '#4CA5C2' }} />
+        </BentoCard>
 
-          {budgetBySegment.length > 0 && (
-            <>
-              <BentoCard title="Budget Overview by Segment" colSpan={2}>
-                <BudgetOverviewChart data={budgetBySegment} />
-              </BentoCard>
+        {budgetBySegment.length > 0 && (
+          <>
+            <BentoCard title="Budget Overview by Segment" colSpan={2}>
+              <BudgetOverviewChart data={budgetBySegment} />
+            </BentoCard>
 
-              <BentoCard title="Funding by Source" colSpan={2}>
-                <FundingBySourceChart data={fundingBySource} />
-              </BentoCard>
+            <BentoCard title="Funding by Source" colSpan={2}>
+              <FundingBySourceChart data={fundingBySource} />
+            </BentoCard>
 
-              <BentoCard title="Budget Utilization by Practice Type" colSpan={4}>
-                <FundingBySourceChart data={budgetByBMPType} />
-              </BentoCard>
-            </>
-          )}
-        </BentoGrid>
+            <BentoCard title="Budget Utilization by Practice Type" colSpan={4}>
+              <FundingBySourceChart data={budgetByBMPType} />
+            </BentoCard>
+          </>
+        )}
+      </BentoGrid>
       </div>{/* end capture area */}
 
       {/* Data Table */}
