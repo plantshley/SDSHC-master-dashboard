@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import './CostShareMap.css'
@@ -14,6 +14,25 @@ L.Icon.Default.mergeOptions({
 
 const SD_CENTER = [44.0, -100.0]
 const SD_ZOOM = 6
+
+const LIGHT_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+const LIGHT_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+const DARK_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+
+function useDarkMode() {
+  const [isDark, setIsDark] = useState(
+    () => document.documentElement.getAttribute('data-mode') === 'dark'
+  )
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.getAttribute('data-mode') === 'dark')
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-mode'] })
+    return () => observer.disconnect()
+  }, [])
+  return isDark
+}
 
 function getFundingColor(amount) {
   if (amount > 50000) return '#1A6B82'
@@ -47,6 +66,8 @@ function ResetViewButton() {
 }
 
 export default function CostShareMap({ data }) {
+  const isDark = useDarkMode()
+
   // Aggregate by farm (group rows by personId to get one marker per farm)
   const farms = useMemo(() => {
     if (!data || data.length === 0) return []
@@ -95,8 +116,9 @@ export default function CostShareMap({ data }) {
         scrollWheelZoom={true}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={isDark ? 'dark' : 'light'}
+          attribution={isDark ? DARK_ATTR : LIGHT_ATTR}
+          url={isDark ? DARK_TILES : LIGHT_TILES}
         />
         <ResetViewButton />
         {farms.map((farm, i) => (
