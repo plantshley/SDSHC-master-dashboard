@@ -53,13 +53,13 @@ export default function FinancialByRoleChart({ data }) {
             width={70}
           />
           <Tooltip content={<CustomTooltipContent valueFormatter={dollarFormatter} />} cursor={{ fill: 'var(--accent-bg)' }} />
-          <Bar dataKey="giving" name="Giving" fill="#4CAF50" fillOpacity={0.8} radius={[4, 4, 0, 0]} />
+          <Bar dataKey="giving" name="Giving" fill="#8EC75A" fillOpacity={0.8} radius={[4, 4, 0, 0]} />
           <Bar dataKey="vending" name="Vending" fill="#FC38A4" fillOpacity={0.8} radius={[4, 4, 0, 0]} />
-          <Bar dataKey="costshare" name="Cost-share" fill="#2196F3" fillOpacity={0.8} radius={[4, 4, 0, 0]} />
+          <Bar dataKey="costshare" name="Cost-share" fill="#4CA5C2" fillOpacity={0.8} radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
       <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 0, fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>
-        {[{ name: 'Giving', color: '#4CAF50' }, { name: 'Vending', color: '#FC38A4' }, { name: 'Cost-share', color: '#2196F3' }].map((item) => (
+        {[{ name: 'Giving', color: '#4CAF50' }, { name: 'Vending', color: '#FC38A4' }, { name: 'Cost-share', color: '#4CA5C2' }].map((item) => (
           <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)' }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: item.color, display: 'inline-block' }} />
             {item.name}
